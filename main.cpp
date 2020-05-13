@@ -9,37 +9,11 @@
 using std::string_view;
 using std::string;
 
-class Tree {
-    private:    
-        struct Node {
-            Node* left = nullptr;
-            Node* right = nullptr;
-            int type = 0;
-            string_view value;
-
-            Node() = default;
-
-            Node(string_view value, int type) : type(type), value(value){};
-
-            ~Node() {
-                if(left) {
-                    delete left;
-                }
-                if(right) {
-                    delete right;
-                }
-            }
-
-            void readFromBuffer(char* buffer) {
-                
-            }
-        };
-
-};
 
 class TokenHandler {
     char* buffer = nullptr;
     int n_tokens = 0;
+    int current = 0;
     string_view* tokens = nullptr;
 
     unsigned int countWordsInString(char* data)
@@ -73,9 +47,95 @@ class TokenHandler {
             return n_tokens;
         }
 
+        inline string_view& Get() {
+            return tokens[current++];
+        }
+
+        inline string_view Look() {
+            return tokens[current];
+        }
+
+        void Unget() {
+            --current;
+        }
+
+        void Seek(int idx) {
+            current = idx;
+        }
+
         ~TokenHandler() {
             delete[] tokens;
             delete[] buffer;
+        }
+};
+
+class Tree {
+    private:
+        struct Node {
+            Node* left = nullptr;
+            Node* right = nullptr;
+            int type = 0;
+            string_view value;
+
+            Node() = default;
+
+            Node(string_view value, int type) : type(type), value(value){};
+
+            ~Node() {
+                if(left) {
+                    delete left;
+                }
+                if(right) {
+                    delete right;
+                }
+            }
+
+            Node(TokenHandler& handler) {
+                handler.Get();
+                value = handler.Get();
+
+                if(handler.Look() == "{") {
+                    left = new Node(handler);
+                    right = new Node(handler);
+                }
+
+                handler.Get();
+            }
+
+            void Dump(std::ofstream& dump_file) {
+                dump_file << "node" << this << "[label=\"{" << this << "}|{VALUE|" << value << "}|{LEFT|" << this->left << "}|{RIGHT|" << this->right << "}\",shape=record];" << std::endl;
+                if (this->left) {
+                    this->left->Dump(dump_file);
+                    dump_file << "node" << this << " -> " << "node" << this->left << ";\n";
+                }
+                if (this->right) {
+                    this->right->Dump(dump_file);
+                    dump_file << "node" << this << " -> " << "node" << this->right << ";\n";
+                }
+            }
+        };
+
+        Node* root = nullptr;
+    public:
+        Tree(Node* root) : root(root){};
+        Tree& operator=(const Tree& other) = delete;
+        Tree(const Tree& other) = delete;
+        ~Tree() {
+            delete root;
+        }
+
+        Node* GetRoot() {
+            return root;
+        }
+
+        Tree(TokenHandler& handler) {
+            root = new Node(handler);
+        }
+
+        void Dump(std::ofstream& out) {
+            out << "digraph {\n";
+            root->Dump(out);
+            out << "}";
         }
 };
 
@@ -90,9 +150,12 @@ int main() {
 
     TokenHandler handler = TokenHandler(tree_data);
 
-    for(int i = 0; i < handler.Size(); ++i) {
-        std::cout << handler[i] << std::endl;
-    }
+    Tree ast = Tree(handler);
+    std::ofstream dump;
+    dump.open("dump.dot");
+    ast.Dump(dump);
+    dump.close();
+
 
     return 0;
 }
