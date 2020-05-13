@@ -1,0 +1,38 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/maxim/Programming/AsmCourse/lang_translation/main.cpp
+node_processors.h
+/home/maxim/Programming/AsmCourse/lang_translation/node_processors.h
+
+/home/maxim/Programming/AsmCourse/lang_translation/node_processors.h
+vector
+-
+tree.h
+/home/maxim/Programming/AsmCourse/lang_translation/tree.h
+
+/home/maxim/Programming/AsmCourse/lang_translation/token_handler.h
+string_view
+-
+string
+-
+iterator
+-
+algorithm
+-
+sstream
+-
+
+/home/maxim/Programming/AsmCourse/lang_translation/tree.h
+iostream
+-
+fstream
+-
+token_handler.h
+/home/maxim/Programming/AsmCourse/lang_translation/token_handler.h
+
