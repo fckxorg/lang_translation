@@ -20,20 +20,20 @@ struct FunctionData {
 std::vector<FunctionData*> functions = {};
 
 namespace process {
-    void DeclarationVarlist(Node* node, FunctionData* func);
-    void ProgramRoot(Node* node, std::ofstream& out);
-    void Declaration(Node* node, std::ofstream& out);
+    void DeclarationVarlist(Node* node, FunctionData* func); //Offset fix needed
+    void ProgramRoot(Node* node, std::ofstream& out); // done
+    void Declaration(Node* node, std::ofstream& out); // done
     void CallVarlist(Node* node, std::ofstream& out);
     void Arithmetic(Node* node, std::ofstream& out);
     void Intialize(Node* node, std::ofstream& out);
-    void GetLocals(Node* node, FunctionData* func);
+    void GetLocals(Node* node, FunctionData* func);   // done
     void Branches(Node* node, std::ofstream& out);
-    void Function(Node* node, std::ofstream& out);
-    void Operator(Node* node, std::ofstream& out);
+    void Function(Node* node, std::ofstream& out);    // done
+    void Operator(Node* node, FunctionData* func, std::ofstream& out);
     void Assign(Node* node, std::ofstream& out);
     void Output(Node* node, std::ofstream& out);
     void Return(Node* node, std::ofstream& out);
-    void Block(Node* node, std::ofstream& out);
+    void Block(Node* node, FunctionData* fun, std::ofstream& out); // done
     void Input(Node* node, std::ofstream& out);
     void Call(Node* node, std::ofstream& out);
     void At(Node* node, std::ofstream& out);
@@ -80,7 +80,7 @@ void process::Function(Node* node, std::ofstream& out) {
     process::GetLocals(node->right->right, func);
 
     // process and output block
-    //process::Block(node->right->right, out);
+    process::Block(node->right->right, func, out);
 
     functions.push_back(func);
 
@@ -117,4 +117,14 @@ void process::GetLocals(Node* node, FunctionData* func) {
     if(node->right) {
         GetLocals(node->right, func);
     }
+}
+
+void process::Block(Node* node, FunctionData* func, std::ofstream& out) {
+    if(node->right) {
+        process::Operator(node, func, out);
+    }
+}
+
+void process::Operator(Node* node, FunctionData* func, std::ofstream& out) {
+    
 }
