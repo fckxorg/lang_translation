@@ -46,15 +46,15 @@ struct Node {
     }
 
     template <typename Functor>
-    void Process(Functor func, std::ofstream& out) {
-        func(this, out);
+    void Process(Functor func) {
+        func(this);
         
         if(left) {
-            left->Process(func, out);
+            left->Process(func);
         }
 
         if(right) {
-            right->Process(func, out);
+            right->Process(func);
         }
     }
 };
@@ -85,7 +85,7 @@ class Tree {
         }
 
         template<typename Functor>
-        void Process(Functor func, std::ofstream& out) {
-            root->Process(func, out);
+        void Process(Functor func) {
+            root->Process(func);
         }
 };
