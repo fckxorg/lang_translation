@@ -13,7 +13,9 @@ char RBP[]  = "rbp";
 
 //instructions
 char CALL[] = "\t\tcall\t";
-char MOV[]  = "\t\tmov\t";
-char XOR[]  = "\t\txor\t";
+char MOV[]  = "\t\tmov\t\t";
+char XOR[]  = "\t\txor\t\t";
 char SYS[]  = "\t\tsyscall";
+char PUSH[] = "\t\tpush\t";
+char ADD[]  = "\t\tadd\t\t";
 

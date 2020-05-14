@@ -19,16 +19,22 @@ struct FunctionData {
 
 std::vector<FunctionData*> functions = {};
 
+void CheckVariableExists(FunctionData* func, const string_view& var) {
+    if(func->variables.find(var) == func->variables.end()) {
+        std::runtime_error("Variable does not exist! Aborting...");
+    }
+}
+
 namespace process {
-    void DeclarationVarlist(Node* node, FunctionData* func); //Offset fix needed
+    void DeclarationVarlist(Node* node, FunctionData* func); //TODO Offset fix needed
     void ProgramRoot(Node* node, std::ofstream& out); // done
     void Declaration(Node* node, std::ofstream& out); // done
     void CallVarlist(Node* node, std::ofstream& out);
-    void Expression(Node* node, std::ofstream& out);
-    void Intialize(Node* node, FunctionData* func, std::ofstream& out);
+    void Expression(Node* node, FunctionData* func, std::ofstream& out); // calculation result must be stored in RAX
+    void Intialize(Node* node, FunctionData* func, std::ofstream& out);  // done
     void GetLocals(Node* node, FunctionData* func);   // done
     void Branches(Node* node, std::ofstream& out);
-    void Function(Node* node, std::ofstream& out);    // done
+    void Function(Node* node, std::ofstream& out);    // TODO add used registers to saved ones
     void Operator(Node* node, FunctionData* func, std::ofstream& out); // done
     void Assign(Node* node, FunctionData* func, std::ofstream& out);
     void Output(Node* node, FunctionData* func, std::ofstream& out);
@@ -72,6 +78,10 @@ void process::Function(Node* node, std::ofstream& out) {
     func->name = node->right->value;
 
     out << func->name << ":\n";
+    out << PUSH << RBP << "\n"; //setting up stack frame
+    out << MOV << RBP << ", " << RSP << "\n";
+    out << ADD << RBP << ", " << "0x10\n";
+
     
     // getting number of args, their names and setting their offsets in stack
     process::DeclarationVarlist(node->left, func);
@@ -160,11 +170,38 @@ void process::Operator(Node* node, FunctionData* func, std::ofstream& out) {
 
 }
 
-void process::Intialize(Node* node, FunctionData* func, std::ofstream& out) {}
+void process::Intialize(Node* node, FunctionData* func, std::ofstream& out) {
+    string_view var_name = node->right->value;
+    CheckVariableExists(func, var_name);
+
+    int var_offset = func->variables[var_name];
+    char sign = var_offset >= 0 ? '+' : '-'; 
+    out << MOV << "[" << RBP << " " << sign << " " << abs(var_offset) << "], ";
+
+    if(node->left) {
+        process::Expression(node->left, func, out);
+        out << RAX << "\n";
+    }
+    else {
+        out << "0\n";
+    }
+}
+
+void process::Assign(Node* node, FunctionData* func, std::ofstream& out) {
+    string_view var_name = node->left->value;
+    CheckVariableExists(func, var_name);
+    
+    process::Expression(node->left, func, out);
+    
+    int var_offset = func->variables[var_name];
+    char sign = var_offset >= 0 ? '+' : '-'; 
+    out << MOV << "[" << RBP << " " << sign << " " << abs(var_offset) << "], " <<  RAX << "\n";
+}
+
 void process::Input(Node* node, FunctionData* func, std::ofstream& out) {}
 void process::Output(Node* node, FunctionData* func, std::ofstream& out) {}
 void process::Call(Node* node, FunctionData* func, std::ofstream& out) {}
 void process::If(Node* node, FunctionData* func, std::ofstream& out) {}
 void process::While(Node* node, FunctionData* func, std::ofstream& out) {}
 void process::Return(Node* node, FunctionData* func, std::ofstream& out) {}
-void process::Assign(Node* node, FunctionData* func, std::ofstream& out) {}
+void process::Expression(Node* node, FunctionData* func, std::ofstream& out) {}
