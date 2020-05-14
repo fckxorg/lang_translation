@@ -6,7 +6,7 @@ struct Node {
     Node* left = nullptr;
     Node* right = nullptr;
     int type = 0;
-    string_view value;
+    string_view value = "";
 
     Node() = default;
 

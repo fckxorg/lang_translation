@@ -2,11 +2,6 @@
 
 using std::vector;
 
-void ProcessNode(Node* node, std::ofstream& out) {
-    if(node->value == "PROGRAM_ROOT") {
-        processProgramRoot(out);
-    }
-}
 
 int main() {
     FILE* tree_file = fopen("factorial.tree", "r");
@@ -23,9 +18,8 @@ int main() {
 
     std::ofstream assembly("src.asm");
 
-    ast.Process(ProcessNode, assembly);
+    process::ProgramRoot(ast.GetRoot(), assembly);
 
     assembly.close();
-
     return 0;
 }
