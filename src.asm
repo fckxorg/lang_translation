@@ -13,5 +13,7 @@ main:
 		push	rbp
 		mov		rbp, rsp
 		add		rbp, 0x10
+; Initializing variable: test
 		mov		[rbp + 0], 0
+; Assigning to variable: test
 		mov		[rbp + 0], rax

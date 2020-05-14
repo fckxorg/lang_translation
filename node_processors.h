@@ -36,7 +36,7 @@ namespace process {
     void Branches(Node* node, std::ofstream& out);
     void Function(Node* node, std::ofstream& out);    // TODO add used registers to saved ones
     void Operator(Node* node, FunctionData* func, std::ofstream& out); // done
-    void Assign(Node* node, FunctionData* func, std::ofstream& out);
+    void Assign(Node* node, FunctionData* func, std::ofstream& out);   // done
     void Output(Node* node, FunctionData* func, std::ofstream& out);
     void Return(Node* node, FunctionData* func, std::ofstream& out);
     void Block(Node* node, FunctionData* func, std::ofstream& out); // done
@@ -176,6 +176,7 @@ void process::Intialize(Node* node, FunctionData* func, std::ofstream& out) {
 
     int var_offset = func->variables[var_name];
     char sign = var_offset >= 0 ? '+' : '-'; 
+    out << "; Initializing variable: " << var_name << "\n";
     out << MOV << "[" << RBP << " " << sign << " " << abs(var_offset) << "], ";
 
     if(node->left) {
@@ -192,9 +193,11 @@ void process::Assign(Node* node, FunctionData* func, std::ofstream& out) {
     CheckVariableExists(func, var_name);
     
     process::Expression(node->left, func, out);
-    
+
     int var_offset = func->variables[var_name];
     char sign = var_offset >= 0 ? '+' : '-'; 
+
+    out << "; Assigning to variable: " << var_name << "\n";
     out << MOV << "[" << RBP << " " << sign << " " << abs(var_offset) << "], " <<  RAX << "\n";
 }
 
