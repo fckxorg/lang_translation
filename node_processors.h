@@ -24,20 +24,20 @@ namespace process {
     void ProgramRoot(Node* node, std::ofstream& out); // done
     void Declaration(Node* node, std::ofstream& out); // done
     void CallVarlist(Node* node, std::ofstream& out);
-    void Arithmetic(Node* node, std::ofstream& out);
-    void Intialize(Node* node, std::ofstream& out);
+    void Expression(Node* node, std::ofstream& out);
+    void Intialize(Node* node, FunctionData* func, std::ofstream& out);
     void GetLocals(Node* node, FunctionData* func);   // done
     void Branches(Node* node, std::ofstream& out);
     void Function(Node* node, std::ofstream& out);    // done
-    void Operator(Node* node, FunctionData* func, std::ofstream& out);
-    void Assign(Node* node, std::ofstream& out);
-    void Output(Node* node, std::ofstream& out);
-    void Return(Node* node, std::ofstream& out);
-    void Block(Node* node, FunctionData* fun, std::ofstream& out); // done
-    void Input(Node* node, std::ofstream& out);
-    void Call(Node* node, std::ofstream& out);
-    void At(Node* node, std::ofstream& out);
-    void If(Node* node, std::ofstream& out);
+    void Operator(Node* node, FunctionData* func, std::ofstream& out); // done
+    void Assign(Node* node, FunctionData* func, std::ofstream& out);
+    void Output(Node* node, FunctionData* func, std::ofstream& out);
+    void Return(Node* node, FunctionData* func, std::ofstream& out);
+    void Block(Node* node, FunctionData* func, std::ofstream& out); // done
+    void While(Node* node, FunctionData* func, std::ofstream& out);
+    void Input(Node* node, FunctionData* func, std::ofstream& out);
+    void Call(Node* node, FunctionData* func, std::ofstream& out);
+    void If(Node* node, FunctionData* func, std::ofstream& out);
     void ID(Node* node, std::ofstream& out);
 };
 
@@ -121,10 +121,50 @@ void process::GetLocals(Node* node, FunctionData* func) {
 
 void process::Block(Node* node, FunctionData* func, std::ofstream& out) {
     if(node->right) {
-        process::Operator(node, func, out);
+        process::Operator(node->right, func, out);
     }
 }
 
 void process::Operator(Node* node, FunctionData* func, std::ofstream& out) {
-    
+    if(node->right) {
+        string_view operation = node->right->value;
+
+        if(operation == "INITIALIZE") {
+            process::Intialize(node->right, func, out);
+        }
+        if(operation == "INPUT") {
+            process::Input(node->right, func, out);
+        }
+        if(operation == "OUTPUT") {
+            process::Output(node->right, func, out);
+        }
+        if(operation == "CALL") {
+            process::Call(node->right, func, out);
+        }
+        if(operation == "IF") {
+            process::If(node->right, func, out);
+        }
+        if(operation == "WHILE") {
+            process::While(node->right, func, out);
+        }
+        if(operation == "RETURN") {
+            process::Return(node->right, func, out);
+        }
+        if(operation == "ASSIGN") {
+            process::Assign(node->right, func, out);
+        }
+    }
+    if(node->left) {
+        process::Operator(node->left, func, out);
+    }
+
 }
+
+void process::Intialize(Node* node, FunctionData* func, std::ofstream& out) {}
+void process::Input(Node* node, FunctionData* func, std::ofstream& out) {}
+void process::Output(Node* node, FunctionData* func, std::ofstream& out) {}
+void process::Call(Node* node, FunctionData* func, std::ofstream& out) {}
+void process::If(Node* node, FunctionData* func, std::ofstream& out) {}
+void process::While(Node* node, FunctionData* func, std::ofstream& out) {}
+void process::Return(Node* node, FunctionData* func, std::ofstream& out) {}
+void process::Assign(Node* node, FunctionData* func, std::ofstream& out) {}
