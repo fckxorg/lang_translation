@@ -33,12 +33,11 @@ namespace process {
     void Expression(Node* node, FunctionData* func, std::ofstream& out); // calculation result must be stored in RAX
     void Intialize(Node* node, FunctionData* func, std::ofstream& out);  // done
     void GetLocals(Node* node, FunctionData* func);   // done
-    void Branches(Node* node, std::ofstream& out);
     void Function(Node* node, std::ofstream& out);    // TODO add used registers to saved ones
     void Operator(Node* node, FunctionData* func, std::ofstream& out); // done
     void Assign(Node* node, FunctionData* func, std::ofstream& out);   // done
     void Output(Node* node, FunctionData* func, std::ofstream& out);
-    void Return(Node* node, FunctionData* func, std::ofstream& out);
+    void Return(Node* node, FunctionData* func, std::ofstream& out);   // TODO and CHECK
     void Block(Node* node, FunctionData* func, std::ofstream& out); // done
     void While(Node* node, FunctionData* func, std::ofstream& out);
     void Input(Node* node, FunctionData* func, std::ofstream& out);
@@ -56,7 +55,7 @@ void process::ProgramRoot(Node* node, std::ofstream& out) {
     out << CALL << "main\n";
     out << MOV << RAX << ", 60\n";
     out << XOR << RDI << ", " << RDI << "\n";
-    out << SYS << "\n";
+    out << SYS << "\n\n";
 
     // calling declaration processing
     // declarations always start on the right, as it defined in standard
@@ -93,7 +92,7 @@ void process::Function(Node* node, std::ofstream& out) {
     process::Block(node->right->right, func, out);
 
     functions.push_back(func);
-
+    out << "\n";
 }
 
 void process::DeclarationVarlist(Node* node, FunctionData* func) {
@@ -167,7 +166,6 @@ void process::Operator(Node* node, FunctionData* func, std::ofstream& out) {
     if(node->left) {
         process::Operator(node->left, func, out);
     }
-
 }
 
 void process::Intialize(Node* node, FunctionData* func, std::ofstream& out) {
@@ -201,10 +199,62 @@ void process::Assign(Node* node, FunctionData* func, std::ofstream& out) {
     out << MOV << "[" << RBP << " " << sign << " " << abs(var_offset) << "], " <<  RAX << "\n";
 }
 
+void process::Return(Node* node, FunctionData* func, std::ofstream& out) {
+    string_view var_name = node->right->value;
+    CheckVariableExists(func, var_name);
+
+    int var_offset = func->variables[var_name];
+    char sign = var_offset >= 0 ? '+' : '-'; 
+
+
+    out << "; Placing return value (" << var_name <<") to RAX register\n";
+    out << MOV << RAX << ", [" << RBP << " " << sign << " " << abs(var_offset) << "]\n";
+    //TODO Need to pop every saved value here and destroy stack frame;
+    out << "ret\n";
+
+}
+
+void process::If(Node* node, FunctionData* func, std::ofstream& out) {
+    process::Expression(node->left->left, func, out);
+    out << "; Saving left expression result to stack\n";
+    out << PUSH << RAX << "\n";
+    
+    process::Expression(node->left->right, func, out);
+    out << "; Moving right expression to RCX\n";
+    out << MOV << RCX << ", " << RAX << "\n";
+
+    out << "; Popping first expression result to RBX\n";
+    out << POP << RBX << "\n";
+
+    out << CMP << RBX << ", " << RCX << "\n";
+
+    if(node->left->value == "EQUAL") {
+        out << JNE << node << "\n\n";  //using else condition for jump
+    }
+    else if(node->left->value == "ABOVE") {
+        out << JBE << node << "\n\n";
+    }
+    else if(node->left->value == "BELOW") {
+        out << JAE << node << "\n\n";
+    }
+
+    process::Block(node->right->right, func, out);
+
+    if(node->right->left) {
+        out << JMP << node->right << "\n";
+    }
+
+
+    out << node << ":\n";
+
+    if(node->right->left) {
+        process::Block(node->right->left, func, out);
+        out << node->right << ":\n";
+    }
+}
+
 void process::Input(Node* node, FunctionData* func, std::ofstream& out) {}
 void process::Output(Node* node, FunctionData* func, std::ofstream& out) {}
 void process::Call(Node* node, FunctionData* func, std::ofstream& out) {}
-void process::If(Node* node, FunctionData* func, std::ofstream& out) {}
 void process::While(Node* node, FunctionData* func, std::ofstream& out) {}
-void process::Return(Node* node, FunctionData* func, std::ofstream& out) {}
 void process::Expression(Node* node, FunctionData* func, std::ofstream& out) {}
