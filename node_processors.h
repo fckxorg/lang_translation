@@ -32,6 +32,7 @@ namespace process {
     void CallVarlist(Node* node, std::ofstream& out);
     void Expression(Node* node, FunctionData* func, std::ofstream& out); // calculation result must be stored in RAX
     void Intialize(Node* node, FunctionData* func, std::ofstream& out);  // done
+    void Condition(Node* node, FunctionData* func, std::ofstream& out);
     void GetLocals(Node* node, FunctionData* func);   // done
     void Function(Node* node, std::ofstream& out);    // TODO add used registers to saved ones
     void Operator(Node* node, FunctionData* func, std::ofstream& out); // done
@@ -42,7 +43,7 @@ namespace process {
     void While(Node* node, FunctionData* func, std::ofstream& out);
     void Input(Node* node, FunctionData* func, std::ofstream& out);
     void Call(Node* node, FunctionData* func, std::ofstream& out);
-    void If(Node* node, FunctionData* func, std::ofstream& out);
+    void If(Node* node, FunctionData* func, std::ofstream& out);    // done
     void ID(Node* node, std::ofstream& out);
 };
 
@@ -210,33 +211,12 @@ void process::Return(Node* node, FunctionData* func, std::ofstream& out) {
     out << "; Placing return value (" << var_name <<") to RAX register\n";
     out << MOV << RAX << ", [" << RBP << " " << sign << " " << abs(var_offset) << "]\n";
     //TODO Need to pop every saved value here and destroy stack frame;
-    out << "ret\n";
+    out << RET << "\n";
 
 }
 
 void process::If(Node* node, FunctionData* func, std::ofstream& out) {
-    process::Expression(node->left->left, func, out);
-    out << "; Saving left expression result to stack\n";
-    out << PUSH << RAX << "\n";
-    
-    process::Expression(node->left->right, func, out);
-    out << "; Moving right expression to RCX\n";
-    out << MOV << RCX << ", " << RAX << "\n";
-
-    out << "; Popping first expression result to RBX\n";
-    out << POP << RBX << "\n";
-
-    out << CMP << RBX << ", " << RCX << "\n";
-
-    if(node->left->value == "EQUAL") {
-        out << JNE << node << "\n\n";  //using else condition for jump
-    }
-    else if(node->left->value == "ABOVE") {
-        out << JBE << node << "\n\n";
-    }
-    else if(node->left->value == "BELOW") {
-        out << JAE << node << "\n\n";
-    }
+    process::Condition(node, func, out);
 
     process::Block(node->right->right, func, out);
 
@@ -253,8 +233,44 @@ void process::If(Node* node, FunctionData* func, std::ofstream& out) {
     }
 }
 
+void process::While(Node* node, FunctionData* func, std::ofstream& out) {
+    out << "while_" << node << ":\n";
+    process::Condition(node, func, out);
+    process::Block(node->right, func, out);
+    out << node << ":\n";
+    
+}
+
+void process::Condition(Node* node, FunctionData* func, std::ofstream& out) {
+    process::Expression(node->left->left, func, out);
+    out << "; Saving left expression result to stack\n";
+    out << PUSH << RAX << "\n";
+    
+    process::Expression(node->left->right, func, out);
+    out << "; Moving right expression to RCX\n";
+    out << MOV << RCX << ", " << RAX << "\n";
+
+    out << "; Popping first expression result to RBX\n";
+    out << POP << RBX << "\n";
+
+    out << CMP << RBX << ", " << RCX << "\n";
+
+    string_view comp = node->left->value;
+
+    if(comp == "EQUAL") {
+        out << JNE << node << "\n\n";  //using else condition for jump
+    }
+    else if(comp == "ABOVE") {
+        out << JBE << node << "\n\n";
+    }
+    else if(comp == "BELOW") {
+        out << JAE << node << "\n\n";
+    }
+}
+
 void process::Input(Node* node, FunctionData* func, std::ofstream& out) {}
 void process::Output(Node* node, FunctionData* func, std::ofstream& out) {}
 void process::Call(Node* node, FunctionData* func, std::ofstream& out) {}
-void process::While(Node* node, FunctionData* func, std::ofstream& out) {}
 void process::Expression(Node* node, FunctionData* func, std::ofstream& out) {}
+void ID(Node* node, std::ofstream& out);
+void CallVarlist(Node* node, std::ofstream& out);

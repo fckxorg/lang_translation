@@ -24,3 +24,4 @@ char JNE[]  = "\t\tjne\t\t";
 char JMP[]  = "\t\tjmp\t\t";
 char JBE[]  = "\t\tjbe\t\t";
 char JAE[]  = "\t\tjae\t\t";
+char RET[]  = "\t\tret";

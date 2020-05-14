@@ -17,13 +17,13 @@ factorial:
 ; Popping first expression result to RBX
 		pop		rbx
 		cmp		rbx, rcx
-		jne		0x55654d1d0d90
+		jne		0x562c4d92cd90
 
 ; Placing return value (num) to RAX register
 		mov		rax, [rbp + 0]
-ret
-		jmp		0x55654d1d0e50
-0x55654d1d0d90:
+		ret
+		jmp		0x562c4d92ce50
+0x562c4d92cd90:
 ; Initializing variable: subnum
 		mov		[rbp + 0], rax
 ; Assigning to variable: subnum
@@ -32,8 +32,8 @@ ret
 		mov		[rbp + 0], rax
 ; Placing return value (num) to RAX register
 		mov		rax, [rbp + 0]
-ret
-0x55654d1d0e50:
+		ret
+0x562c4d92ce50:
 
 main:
 		push	rbp
