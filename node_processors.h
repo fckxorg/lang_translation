@@ -52,10 +52,9 @@ void process::ProgramRoot(Node* node, FILE* out) {
     fprintf(out, "\t\tsection .text\n");
     fprintf(out, "_start:\n");
     fprintf(out, "\t\tcall\tmain\n");
-    mov(out, RAX, 60);
-    fprintf(out, "\t\txor\t\trdi, rdi\n");
-    fprintf(out, "\t\tsyscall\n\n");
-
+    MOV(out, RAX, 60);
+    XOR(out, RDI, RDI);
+    SYSCALL(out);
     // calling declaration processing
     // declarations always start on the right, as it defined in standard
     process::Declaration(node->right, out);
@@ -77,9 +76,9 @@ void process::Function(Node* node, FILE* out) {
 
     fprintf(out, func->name.data());
     fprintf(out, ":\n");
-    push(out, RBP);
-    mov(out, RBP, RSP);
-    fprintf(out, "\t\tadd\t\trbp, 0x10\n");
+    PUSH(out, RBP);
+    MOV(out, RBP, RSP);
+    ADD(out, RBP, 0x10);
 
     // getting number of args, their names and setting their offsets in stack
     process::DeclarationVarlist(node->left, func);
@@ -177,10 +176,10 @@ void process::Intialize(Node* node, FunctionData* func, FILE* out) {
 
     if(node->left) {
         process::Expression(node->left, func, out);
-        mov(out, RBP, var_offset, RAX);
+        MOV(out, RBP, var_offset, RAX);
     }
     else {
-        mov(out, RBP, var_offset, 0);
+        MOV(out, RBP, var_offset, 0);
     }
 }
 
@@ -192,7 +191,7 @@ void process::Assign(Node* node, FunctionData* func, FILE* out) {
 
     int var_offset = func->variables[var_name];
     fprintf(out, "; Assigning to variable: %s\n", var_name.data());
-    mov(out, RBP, var_offset, RAX);
+    MOV(out, RBP, var_offset, RAX);
 }
 
 void process::Return(Node* node, FunctionData* func, FILE* out) {
@@ -204,9 +203,9 @@ void process::Return(Node* node, FunctionData* func, FILE* out) {
 
 
     fprintf(out, "; Placing return value (%s) to RAX register\n", var_name.data());
-    fprintf(out, "\t\tmov\t\trax, [rbp %c %d]\n", sign, abs(var_offset));
+    MOV(out, RAX, RBP, var_offset);
     //TODO Need to pop every saved value here and destroy stack frame;
-    fprintf(out, "\t\tret\n");
+    RET(out);
 
 }
 
@@ -238,16 +237,16 @@ void process::While(Node* node, FunctionData* func, FILE* out) {
 void process::Condition(Node* node, FunctionData* func, FILE* out) {
     process::Expression(node->left->left, func, out);
     fprintf(out, "; Saving left expression result to stack\n");
-    push(out, RAX);
+    PUSH(out, RAX);
     
     process::Expression(node->left->right, func, out);
     fprintf(out, "; Moving right expression to RCX\n");
-    mov(out, RCX, RAX);
+    MOV(out, RCX, RAX);
 
     fprintf(out, "; Popping first expression result to RBX\n");
-    fprintf(out, "\t\tpop\t\trbx\n");
+    POP(out, RBX);
 
-    fprintf(out, "\t\tcmp\t\trbx, rcx\n");
+    CMP(out, RBX, RCX);
 
     string_view comp = node->left->value;
 
