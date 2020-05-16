@@ -1,3 +1,4 @@
+#include <cstring>
 #include "node_processors.h"
 
 #define DUMP 0
@@ -6,19 +7,15 @@
 using std::vector;
 
 void cleanTree(Node* node) {
-    if(node->left && node->left->value == "@") {
+    if(node->left && strcmp(node->left->value, "@") == 0) {
         delete node->left;
         node->left = nullptr;
     }
 
-    if(node->right && node->right->value == "@") {
+    if(node->right && strcmp(node->right->value, "@") == 0) {
         delete node->right;
         node->right = nullptr;
     }
-}
-
-void prepareStrings(Node* node) {
-    const_cast<char*>(node->value.data())[node->value.size()] = '\0';
 }
 
 int main() {
@@ -34,7 +31,6 @@ int main() {
 
     Tree ast = Tree(handler);
     ast.Process(cleanTree);
-    ast.Process(prepareStrings);
 
 #ifdef DUMP
     std::ofstream out("dump.dot");

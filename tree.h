@@ -6,11 +6,11 @@ struct Node {
     Node* left = nullptr;
     Node* right = nullptr;
     int type = 0;
-    string_view value = "";
+    const char* value = nullptr;
 
     Node() = default;
 
-    Node(string_view value, int type) : type(type), value(value){};
+    Node(const char* value, int type) : type(type), value(value){};
 
     ~Node() {
         if(left) {
@@ -23,7 +23,9 @@ struct Node {
 
     Node(TokenHandler& handler) {
         handler.Get();
-        value = handler.Get();
+        string_view cur_value = handler.Get();
+        value = cur_value.data();
+        const_cast<char*>(value)[cur_value.size()] = '\0';
 
         if(handler.Look() == "{") {
             left = new Node(handler);

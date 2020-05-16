@@ -11,14 +11,14 @@ struct FunctionData {
 
     //positive offset stands for argmunets, relative to return address
     //negative offset stands for local vars, relative to last push-saved register
-    std::unordered_map<string_view, int> variables = {}; 
+    std::unordered_map<const char*, int> variables = {}; 
 
     FunctionData() = default;
     ~FunctionData() = default;
 };
 
 
-void CheckVariableExists(FunctionData* func, const string_view& var) {
+void CheckVariableExists(FunctionData* func, const char* var) {
     if(func->variables.find(var) == func->variables.end()) {
         std::runtime_error("Variable does not exist! Aborting...");
     }
@@ -71,7 +71,7 @@ void process::Function(Node* node, FILE* out) {
     FunctionData* func = new FunctionData();
 
     // setting function name in structure
-    func->name = node->right->value.data();
+    func->name = node->right->value;
 
     fprintf(out, func->name);
     fprintf(out, ":\n");
@@ -132,30 +132,30 @@ void process::Block(Node* node, FunctionData* func, FILE* out) {
 
 void process::Operator(Node* node, FunctionData* func, FILE* out) {
     if(node->right) {
-        string_view operation = node->right->value;
+        const char* operation = node->right->value;
 
-        if(operation == "INITIALIZE") {
+        if(strcmp(operation, "INITIALIZE") == 0) {
             process::Intialize(node->right, func, out);
         }
-        if(operation == "INPUT") {
+        if(strcmp(operation, "INPUT") == 0) {
             process::Input(node->right, func, out);
         }
-        if(operation == "OUTPUT") {
+        if(strcmp(operation, "OUTPUT") == 0) {
             process::Output(node->right, func, out);
         }
-        if(operation == "CALL") {
+        if(strcmp(operation, "CALL") == 0) {
             process::Call(node->right, func, out);
         }
-        if(operation == "IF") {
+        if(strcmp(operation, "IF") == 0) {
             process::If(node->right, func, out);
         }
-        if(operation == "WHILE") {
+        if(strcmp(operation, "WHILE") == 0) {
             process::While(node->right, func, out);
         }
-        if(operation == "RETURN") {
+        if(strcmp(operation, "RETURN") == 0) {
             process::Return(node->right, func, out);
         }
-        if(operation == "ASSIGN") {
+        if(strcmp(operation, "ASSIGN") == 0) {
             process::Assign(node->right, func, out);
         }
     }
@@ -165,12 +165,12 @@ void process::Operator(Node* node, FunctionData* func, FILE* out) {
 }
 
 void process::Intialize(Node* node, FunctionData* func, FILE* out) {
-    string_view var_name = node->right->value;
+    const char* var_name = node->right->value;
     CheckVariableExists(func, var_name);
 
     int var_offset = func->variables[var_name];
 
-    fprintf(out , "; Initializing variable: %s\n", var_name.data());
+    fprintf(out , "; Initializing variable: %s\n", var_name);
 
     if(node->left) {
         process::Expression(node->left, func, out);
@@ -182,25 +182,25 @@ void process::Intialize(Node* node, FunctionData* func, FILE* out) {
 }
 
 void process::Assign(Node* node, FunctionData* func, FILE* out) {
-    string_view var_name = node->left->value;
+    const char* var_name = node->left->value;
     CheckVariableExists(func, var_name);
     
     process::Expression(node->left, func, out);
 
     int var_offset = func->variables[var_name];
-    fprintf(out, "; Assigning to variable: %s\n", var_name.data());
+    fprintf(out, "; Assigning to variable: %s\n", var_name);
     MOV(out, RBP, var_offset, RAX);
 }
 
 void process::Return(Node* node, FunctionData* func, FILE* out) {
-    string_view var_name = node->right->value;
+    const char* var_name = node->right->value;
     CheckVariableExists(func, var_name);
 
     int var_offset = func->variables[var_name];
     char sign = var_offset >= 0 ? '+' : '-'; 
 
 
-    fprintf(out, "; Placing return value (%s) to RAX register\n", var_name.data());
+    fprintf(out, "; Placing return value (%s) to RAX register\n", var_name);
     MOV(out, RAX, RBP, var_offset);
     //TODO Need to pop every saved value here and destroy stack frame;
     RET(out);
@@ -246,15 +246,15 @@ void process::Condition(Node* node, FunctionData* func, FILE* out) {
 
     CMP(out, RBX, RCX);
 
-    string_view comp = node->left->value;
+    const char* comp = node->left->value;
 
-    if(comp == "EQUAL") {
+    if(strcmp(comp, "EQUAL") == 0) {
         fprintf(out, "\t\tjne\t\t%p\n\n", node);  //using else condition for jump
     }
-    else if(comp == "ABOVE") {
+    else if(strcmp(comp, "ABOVE") == 0) {
         fprintf(out, "\t\tjbe\t\t%p\n\n", node);
     }
-    else if(comp == "BELOW") {
+    else if(strcmp(comp, "BELOW") == 0) {
         fprintf(out, "\t\tjae\t\t%p\n\n", node);
     }
 }
