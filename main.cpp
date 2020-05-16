@@ -48,20 +48,5 @@ int main() {
 
     fclose(assembly);
 
-#ifdef FUNCTIONS_TABLE
-    for(FunctionData* el : functions) {
-        std::cout << "Function: " << el->name << "\n";
-        std::cout << "n_args: " << el->n_args << "\n";
-        std::cout << "n_vars: " << el->n_vars << "\n";
-        std::cout << "Varible table:\n";
-
-        for(auto& variable : el->variables){
-            std::cout << variable.first << " " << variable.second << "\n";
-        }
-
-        std::cout << "\n=======================\n\n";
-    }
-#endif
-
     return 0;
 }

@@ -5,7 +5,7 @@
 
 
 struct FunctionData {
-    string_view name = "";
+    const char* name = nullptr;
     int n_args = 0;
     int n_vars = 0;
 
@@ -17,7 +17,6 @@ struct FunctionData {
     ~FunctionData() = default;
 };
 
-std::vector<FunctionData*> functions = {};
 
 void CheckVariableExists(FunctionData* func, const string_view& var) {
     if(func->variables.find(var) == func->variables.end()) {
@@ -72,9 +71,9 @@ void process::Function(Node* node, FILE* out) {
     FunctionData* func = new FunctionData();
 
     // setting function name in structure
-    func->name = node->right->value;
+    func->name = node->right->value.data();
 
-    fprintf(out, func->name.data());
+    fprintf(out, func->name);
     fprintf(out, ":\n");
     PUSH(out, RBP);
     MOV(out, RBP, RSP);
@@ -89,7 +88,6 @@ void process::Function(Node* node, FILE* out) {
     // process and output block
     process::Block(node->right->right, func, out);
 
-    functions.push_back(func);
     fprintf(out, "\n");
 }
 
