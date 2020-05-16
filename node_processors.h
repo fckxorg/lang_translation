@@ -1,6 +1,7 @@
 #include <vector>
 #include <unordered_map>
 #include "tree.h"
+#include "instructions.h"
 
 
 struct FunctionData {
@@ -51,7 +52,7 @@ void process::ProgramRoot(Node* node, FILE* out) {
     fprintf(out, "\t\tsection .text\n");
     fprintf(out, "_start:\n");
     fprintf(out, "\t\tcall\tmain\n");
-    fprintf(out, "\t\tmov\t\trax, 60\n");
+    mov(out, RAX, 60);
     fprintf(out, "\t\txor\t\trdi, rdi\n");
     fprintf(out, "\t\tsyscall\n\n");
 
@@ -76,8 +77,8 @@ void process::Function(Node* node, FILE* out) {
 
     fprintf(out, func->name.data());
     fprintf(out, ":\n");
-    fprintf(out, "\t\tpush\trbp\n");
-    fprintf(out, "\t\tmov\t\trbp, rsp\n");
+    push(out, RBP);
+    mov(out, RBP, RSP);
     fprintf(out, "\t\tadd\t\trbp, 0x10\n");
 
     // getting number of args, their names and setting their offsets in stack
@@ -171,17 +172,15 @@ void process::Intialize(Node* node, FunctionData* func, FILE* out) {
     CheckVariableExists(func, var_name);
 
     int var_offset = func->variables[var_name];
-    char sign = var_offset >= 0 ? '+' : '-'; 
 
     fprintf(out , "; Initializing variable: %s\n", var_name.data());
-    fprintf(out, "\t\tmov\t\t[rbp %c %d], ", sign, abs(var_offset));
 
     if(node->left) {
         process::Expression(node->left, func, out);
-        fprintf(out, "rax\n");
+        mov(out, RBP, var_offset, RAX);
     }
     else {
-        fprintf(out, "0\n");
+        mov(out, RBP, var_offset, 0);
     }
 }
 
@@ -192,10 +191,8 @@ void process::Assign(Node* node, FunctionData* func, FILE* out) {
     process::Expression(node->left, func, out);
 
     int var_offset = func->variables[var_name];
-    char sign = var_offset >= 0 ? '+' : '-'; 
-
     fprintf(out, "; Assigning to variable: %s\n", var_name.data());
-    fprintf(out, "\t\tmov\t\t[rbp %c %d], rax\n", sign, abs(var_offset));
+    mov(out, RBP, var_offset, RAX);
 }
 
 void process::Return(Node* node, FunctionData* func, FILE* out) {
@@ -241,11 +238,11 @@ void process::While(Node* node, FunctionData* func, FILE* out) {
 void process::Condition(Node* node, FunctionData* func, FILE* out) {
     process::Expression(node->left->left, func, out);
     fprintf(out, "; Saving left expression result to stack\n");
-    fprintf(out, "\t\tpush\trax\n");
+    push(out, RAX);
     
     process::Expression(node->left->right, func, out);
     fprintf(out, "; Moving right expression to RCX\n");
-    fprintf(out, "\t\tmov\t\trcx, rax\n");
+    mov(out, RCX, RAX);
 
     fprintf(out, "; Popping first expression result to RBX\n");
     fprintf(out, "\t\tpop\t\trbx\n");
