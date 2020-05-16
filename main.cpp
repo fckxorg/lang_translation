@@ -37,11 +37,11 @@ int main() {
     out.close();
 #endif
 
-    std::ofstream assembly("src.asm");
+    FILE* assembly = fopen("src_new.asm", "w");
 
     process::ProgramRoot(ast.GetRoot(), assembly);
 
-    assembly.close();
+    fclose(assembly);
 
 #ifdef FUNCTIONS_TABLE
     for(FunctionData* el : functions) {

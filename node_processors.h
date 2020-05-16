@@ -1,7 +1,6 @@
 #include <vector>
 #include <unordered_map>
 #include "tree.h"
-#include "instructions.h"
 
 
 struct FunctionData {
@@ -27,62 +26,60 @@ void CheckVariableExists(FunctionData* func, const string_view& var) {
 
 namespace process {
     void DeclarationVarlist(Node* node, FunctionData* func); //TODO Offset fix needed
-    void ProgramRoot(Node* node, std::ofstream& out); // done
-    void Declaration(Node* node, std::ofstream& out); // done
-    void CallVarlist(Node* node, std::ofstream& out);
-    void Expression(Node* node, FunctionData* func, std::ofstream& out); // calculation result must be stored in RAX
-    void Intialize(Node* node, FunctionData* func, std::ofstream& out);  // done
-    void Condition(Node* node, FunctionData* func, std::ofstream& out);
+    void ProgramRoot(Node* node, FILE* out); // done
+    void Declaration(Node* node, FILE* out); // done
+    void CallVarlist(Node* node, FILE* out);
+    void Expression(Node* node, FunctionData* func, FILE* out); // calculation result must be stored in RAX
+    void Intialize(Node* node, FunctionData* func, FILE* out);  // done
+    void Condition(Node* node, FunctionData* func, FILE* out);  // done
     void GetLocals(Node* node, FunctionData* func);   // done
-    void Function(Node* node, std::ofstream& out);    // TODO add used registers to saved ones
-    void Operator(Node* node, FunctionData* func, std::ofstream& out); // done
-    void Assign(Node* node, FunctionData* func, std::ofstream& out);   // done
-    void Output(Node* node, FunctionData* func, std::ofstream& out);
-    void Return(Node* node, FunctionData* func, std::ofstream& out);   // TODO and CHECK
-    void Block(Node* node, FunctionData* func, std::ofstream& out); // done
-    void While(Node* node, FunctionData* func, std::ofstream& out);
-    void Input(Node* node, FunctionData* func, std::ofstream& out);
-    void Call(Node* node, FunctionData* func, std::ofstream& out);
-    void If(Node* node, FunctionData* func, std::ofstream& out);    // done
-    void ID(Node* node, std::ofstream& out);
+    void Function(Node* node, FILE* out);    // TODO add used registers to saved ones
+    void Operator(Node* node, FunctionData* func, FILE* out); // done
+    void Assign(Node* node, FunctionData* func, FILE* out);   // done
+    void Output(Node* node, FunctionData* func, FILE* out);
+    void Return(Node* node, FunctionData* func, FILE* out);   // TODO
+    void Block(Node* node, FunctionData* func, FILE* out); // done
+    void While(Node* node, FunctionData* func, FILE* out); //done
+    void Input(Node* node, FunctionData* func, FILE* out);
+    void Call(Node* node, FunctionData* func, FILE* out);
+    void If(Node* node, FunctionData* func, FILE* out);    // done
 };
 
-void process::ProgramRoot(Node* node, std::ofstream& out) {
+void process::ProgramRoot(Node* node, FILE* out) {
     // calls main and finishes program
-
-    out << "\t\tglobal _start\n";
-    out << "\t\tsection .text\n";
-    out << "_start:\n";
-    out << CALL << "main\n";
-    out << MOV << RAX << ", 60\n";
-    out << XOR << RDI << ", " << RDI << "\n";
-    out << SYS << "\n\n";
+    fprintf(out, "\t\tglobal _start\n");
+    fprintf(out, "\t\tsection .text\n");
+    fprintf(out, "_start:\n");
+    fprintf(out, "\t\tcall\tmain\n");
+    fprintf(out, "\t\tmov\t\trax, 60\n");
+    fprintf(out, "\t\txor\t\trdi, rdi\n");
+    fprintf(out, "\t\tsyscall\n\n");
 
     // calling declaration processing
     // declarations always start on the right, as it defined in standard
     process::Declaration(node->right, out);
 }
 
-void process::Declaration(Node* node, std::ofstream& out) {
+void process::Declaration(Node* node, FILE* out) {
     if(node->left) {
         process::Declaration(node->left, out);
     }
     process::Function(node->right, out);
 }
 
-void process::Function(Node* node, std::ofstream& out) {
+void process::Function(Node* node, FILE* out) {
     // new function data storage for function table
     FunctionData* func = new FunctionData();
 
     // setting function name in structure
     func->name = node->right->value;
 
-    out << func->name << ":\n";
-    out << PUSH << RBP << "\n"; //setting up stack frame
-    out << MOV << RBP << ", " << RSP << "\n";
-    out << ADD << RBP << ", " << "0x10\n";
+    fprintf(out, func->name.data());
+    fprintf(out, ":\n");
+    fprintf(out, "\t\tpush\trbp\n");
+    fprintf(out, "\t\tmov\t\trbp, rsp\n");
+    fprintf(out, "\t\tadd\t\trbp, 0x10\n");
 
-    
     // getting number of args, their names and setting their offsets in stack
     process::DeclarationVarlist(node->left, func);
     
@@ -93,7 +90,7 @@ void process::Function(Node* node, std::ofstream& out) {
     process::Block(node->right->right, func, out);
 
     functions.push_back(func);
-    out << "\n";
+    fprintf(out, "\n");
 }
 
 void process::DeclarationVarlist(Node* node, FunctionData* func) {
@@ -129,13 +126,13 @@ void process::GetLocals(Node* node, FunctionData* func) {
     }
 }
 
-void process::Block(Node* node, FunctionData* func, std::ofstream& out) {
+void process::Block(Node* node, FunctionData* func, FILE* out) {
     if(node->right) {
         process::Operator(node->right, func, out);
     }
 }
 
-void process::Operator(Node* node, FunctionData* func, std::ofstream& out) {
+void process::Operator(Node* node, FunctionData* func, FILE* out) {
     if(node->right) {
         string_view operation = node->right->value;
 
@@ -169,25 +166,26 @@ void process::Operator(Node* node, FunctionData* func, std::ofstream& out) {
     }
 }
 
-void process::Intialize(Node* node, FunctionData* func, std::ofstream& out) {
+void process::Intialize(Node* node, FunctionData* func, FILE* out) {
     string_view var_name = node->right->value;
     CheckVariableExists(func, var_name);
 
     int var_offset = func->variables[var_name];
     char sign = var_offset >= 0 ? '+' : '-'; 
-    out << "; Initializing variable: " << var_name << "\n";
-    out << MOV << "[" << RBP << " " << sign << " " << abs(var_offset) << "], ";
+
+    fprintf(out , "; Initializing variable: %s\n", var_name.data());
+    fprintf(out, "\t\tmov\t\t[rbp %c %d], ", sign, abs(var_offset));
 
     if(node->left) {
         process::Expression(node->left, func, out);
-        out << RAX << "\n";
+        fprintf(out, "rax\n");
     }
     else {
-        out << "0\n";
+        fprintf(out, "0\n");
     }
 }
 
-void process::Assign(Node* node, FunctionData* func, std::ofstream& out) {
+void process::Assign(Node* node, FunctionData* func, FILE* out) {
     string_view var_name = node->left->value;
     CheckVariableExists(func, var_name);
     
@@ -196,11 +194,11 @@ void process::Assign(Node* node, FunctionData* func, std::ofstream& out) {
     int var_offset = func->variables[var_name];
     char sign = var_offset >= 0 ? '+' : '-'; 
 
-    out << "; Assigning to variable: " << var_name << "\n";
-    out << MOV << "[" << RBP << " " << sign << " " << abs(var_offset) << "], " <<  RAX << "\n";
+    fprintf(out, "; Assigning to variable: %s\n", var_name.data());
+    fprintf(out, "\t\tmov\t\t[rbp %c %d], rax\n", sign, abs(var_offset));
 }
 
-void process::Return(Node* node, FunctionData* func, std::ofstream& out) {
+void process::Return(Node* node, FunctionData* func, FILE* out) {
     string_view var_name = node->right->value;
     CheckVariableExists(func, var_name);
 
@@ -208,69 +206,67 @@ void process::Return(Node* node, FunctionData* func, std::ofstream& out) {
     char sign = var_offset >= 0 ? '+' : '-'; 
 
 
-    out << "; Placing return value (" << var_name <<") to RAX register\n";
-    out << MOV << RAX << ", [" << RBP << " " << sign << " " << abs(var_offset) << "]\n";
+    fprintf(out, "; Placing return value (%s) to RAX register\n", var_name.data());
+    fprintf(out, "\t\tmov\t\trax, [rbp %c %d]\n", sign, abs(var_offset));
     //TODO Need to pop every saved value here and destroy stack frame;
-    out << RET << "\n";
+    fprintf(out, "\t\tret\n");
 
 }
 
-void process::If(Node* node, FunctionData* func, std::ofstream& out) {
+void process::If(Node* node, FunctionData* func, FILE* out) {
     process::Condition(node, func, out);
 
     process::Block(node->right->right, func, out);
 
     if(node->right->left) {
-        out << JMP << node->right << "\n";
+        fprintf(out, "\t\tjmp\t\t%p\n", node->right);
     }
 
-
-    out << node << ":\n";
+    fprintf(out, "%p:\n", node);
 
     if(node->right->left) {
         process::Block(node->right->left, func, out);
-        out << node->right << ":\n";
+        fprintf(out, "%p:\n", node->right);
     }
 }
 
-void process::While(Node* node, FunctionData* func, std::ofstream& out) {
-    out << "while_" << node << ":\n";
+void process::While(Node* node, FunctionData* func, FILE* out) {
+    fprintf(out, "while_%p:\n", node);
     process::Condition(node, func, out);
     process::Block(node->right, func, out);
-    out << node << ":\n";
+    fprintf(out, "%p:\n", node);
     
 }
 
-void process::Condition(Node* node, FunctionData* func, std::ofstream& out) {
+void process::Condition(Node* node, FunctionData* func, FILE* out) {
     process::Expression(node->left->left, func, out);
-    out << "; Saving left expression result to stack\n";
-    out << PUSH << RAX << "\n";
+    fprintf(out, "; Saving left expression result to stack\n");
+    fprintf(out, "\t\tpush\trax\n");
     
     process::Expression(node->left->right, func, out);
-    out << "; Moving right expression to RCX\n";
-    out << MOV << RCX << ", " << RAX << "\n";
+    fprintf(out, "; Moving right expression to RCX\n");
+    fprintf(out, "\t\tmov\t\trcx, rax\n");
 
-    out << "; Popping first expression result to RBX\n";
-    out << POP << RBX << "\n";
+    fprintf(out, "; Popping first expression result to RBX\n");
+    fprintf(out, "\t\tpop\t\trbx\n");
 
-    out << CMP << RBX << ", " << RCX << "\n";
+    fprintf(out, "\t\tcmp\t\trbx, rcx\n");
 
     string_view comp = node->left->value;
 
     if(comp == "EQUAL") {
-        out << JNE << node << "\n\n";  //using else condition for jump
+        fprintf(out, "\t\tjne\t\t%p\n\n", node);  //using else condition for jump
     }
     else if(comp == "ABOVE") {
-        out << JBE << node << "\n\n";
+        fprintf(out, "\t\tjbe\t\t%p\n\n", node);
     }
     else if(comp == "BELOW") {
-        out << JAE << node << "\n\n";
+        fprintf(out, "\t\tjae\t\t%p\n\n", node);
     }
 }
 
-void process::Input(Node* node, FunctionData* func, std::ofstream& out) {}
-void process::Output(Node* node, FunctionData* func, std::ofstream& out) {}
-void process::Call(Node* node, FunctionData* func, std::ofstream& out) {}
-void process::Expression(Node* node, FunctionData* func, std::ofstream& out) {}
-void ID(Node* node, std::ofstream& out);
-void CallVarlist(Node* node, std::ofstream& out);
+void process::Input(Node* node, FunctionData* func, FILE* out) {}
+void process::Output(Node* node, FunctionData* func, FILE* out) {}
+void process::Call(Node* node, FunctionData* func, FILE* out) {}
+void process::Expression(Node* node, FunctionData* func, FILE* out) {}
+void CallVarlist(Node* node, FILE* out);

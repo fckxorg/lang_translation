@@ -6,8 +6,6 @@
 
 #IncludeRegexTransform: 
 
-/home/maxim/Programming/AsmCourse/lang_translation/instructions.h
-
 /home/maxim/Programming/AsmCourse/lang_translation/main.cpp
 node_processors.h
 /home/maxim/Programming/AsmCourse/lang_translation/node_processors.h
@@ -19,8 +17,6 @@ unordered_map
 -
 tree.h
 /home/maxim/Programming/AsmCourse/lang_translation/tree.h
-instructions.h
-/home/maxim/Programming/AsmCourse/lang_translation/instructions.h
 
 /home/maxim/Programming/AsmCourse/lang_translation/token_handler.h
 string_view
