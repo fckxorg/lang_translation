@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include "tree.h"
 #include "instructions.h"
+#include "hash_table/hash_table.h"
 
 
 struct FunctionData {
@@ -11,7 +12,7 @@ struct FunctionData {
 
     //positive offset stands for argmunets, relative to return address
     //negative offset stands for local vars, relative to last push-saved register
-    std::unordered_map<const char*, int> variables = {}; 
+    HashTable variables = {};
 
     FunctionData() = default;
     ~FunctionData() = default;
@@ -19,7 +20,7 @@ struct FunctionData {
 
 
 void CheckVariableExists(FunctionData* func, const char* var) {
-    if(func->variables.find(var) == func->variables.end()) {
+    if(func->variables.contains(var)) {
         std::runtime_error("Variable does not exist! Aborting...");
     }
 }

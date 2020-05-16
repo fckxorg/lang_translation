@@ -6,7 +6,27 @@
 
 #IncludeRegexTransform: 
 
+/home/maxim/Programming/AsmCourse/lang_translation/hash_table/custom_list.h
+
+/home/maxim/Programming/AsmCourse/lang_translation/hash_table/hash_table.h
+cstring
+-
+functional
+-
+custom_list.h
+/home/maxim/Programming/AsmCourse/lang_translation/hash_table/custom_list.h
+murmur_hash.h
+/home/maxim/Programming/AsmCourse/lang_translation/hash_table/murmur_hash.h
+
+/home/maxim/Programming/AsmCourse/lang_translation/hash_table/murmur_hash.h
+
+/home/maxim/Programming/AsmCourse/lang_translation/instructions.h
+iostream
+-
+
 /home/maxim/Programming/AsmCourse/lang_translation/main.cpp
+cstring
+-
 node_processors.h
 /home/maxim/Programming/AsmCourse/lang_translation/node_processors.h
 
@@ -17,6 +37,10 @@ unordered_map
 -
 tree.h
 /home/maxim/Programming/AsmCourse/lang_translation/tree.h
+instructions.h
+/home/maxim/Programming/AsmCourse/lang_translation/instructions.h
+hash_table/hash_table.h
+/home/maxim/Programming/AsmCourse/lang_translation/hash_table/hash_table.h
 
 /home/maxim/Programming/AsmCourse/lang_translation/token_handler.h
 string_view

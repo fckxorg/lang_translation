@@ -1,5 +1,6 @@
 #ifndef IOSTREAM
 #include <iostream>
+#endif
 
 char RAX[] = "rax";
 char RBX[] = "rbx";
@@ -59,5 +60,3 @@ void SYSCALL(FILE* out) {
 void RET(FILE* out) {
     fprintf(out, "\t\tret\n");
 }
-
-#endif

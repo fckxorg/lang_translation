@@ -6,10 +6,10 @@ _start:
 		xor		rdi, rdi
 		syscall
 
-factorial { @ } { BLOCK { @ } { OP { @ } { IF { EQUAL { num } { 1 } } { C { BLOCK { @ } { OP { OP { OP { OP { OP { @ } { RETURN { @ } { num } } } { ASSIGN { num } { MUL { num } { subnum } } } } { ASSIGN { subnum } { CALL { factorial } { VARLIST { @ } { subnum } } } } } { INITIALIZE { SUB { num } { 1 } } { subnum } } } { OUTPUT { @ } { num } } } } { BLOCK { @ } { OP { @ } { RETURN { @ } { num } } } } } } } } } } } { FUNCTION { VARLIST } { main { @ } { BLOCK { @ } { OP { OP { OP { OP { OP { @ } { OUTPUT { @ } { test } } } { ASSIGN { test } { CALL { factorial } { VARLIST { @ } { test } } } } } { OUTPUT { @ } { test } } } { INPUT { @ } { test } } } { INITIALIZE { @ } { test } } } } } } } } :
+factorial:
 		push	rbp
 		mov		rbp, rsp
-		add		rbp, 0x10
+		add		rbp, 16
 ; Saving left expression result to stack
 		push	rax
 ; Moving right expression to RCX
@@ -17,30 +17,30 @@ factorial { @ } { BLOCK { @ } { OP { @ } { IF { EQUAL { num } { 1 } } { C { BLOC
 ; Popping first expression result to RBX
 		pop		rbx
 		cmp		rbx, rcx
-		jne		0x55730bdafd90
+		jne		0x5580e48f9d90
 
-; Placing return value (num } } } } } } } } } } } { FUNCTION { VARLIST } { main { @ } { BLOCK { @ } { OP { OP { OP { OP { OP { @ } { OUTPUT { @ } { test } } } { ASSIGN { test } { CALL { factorial } { VARLIST { @ } { test } } } } } { OUTPUT { @ } { test } } } { INPUT { @ } { test } } } { INITIALIZE { @ } { test } } } } } } } } ) to RAX register
+; Placing return value (num) to RAX register
 		mov		rax, [rbp + 0]
 		ret
-		jmp		0x55730bdafe50
-0x55730bdafd90:
-; Initializing variable: subnum } } } { OUTPUT { @ } { num } } } } { BLOCK { @ } { OP { @ } { RETURN { @ } { num } } } } } } } } } } } { FUNCTION { VARLIST } { main { @ } { BLOCK { @ } { OP { OP { OP { OP { OP { @ } { OUTPUT { @ } { test } } } { ASSIGN { test } { CALL { factorial } { VARLIST { @ } { test } } } } } { OUTPUT { @ } { test } } } { INPUT { @ } { test } } } { INITIALIZE { @ } { test } } } } } } } } 
+		jmp		0x5580e48f9e50
+0x5580e48f9d90:
+; Initializing variable: subnum
 		mov		[rbp + 0], rax
-; Assigning to variable: subnum } { CALL { factorial } { VARLIST { @ } { subnum } } } } } { INITIALIZE { SUB { num } { 1 } } { subnum } } } { OUTPUT { @ } { num } } } } { BLOCK { @ } { OP { @ } { RETURN { @ } { num } } } } } } } } } } } { FUNCTION { VARLIST } { main { @ } { BLOCK { @ } { OP { OP { OP { OP { OP { @ } { OUTPUT { @ } { test } } } { ASSIGN { test } { CALL { factorial } { VARLIST { @ } { test } } } } } { OUTPUT { @ } { test } } } { INPUT { @ } { test } } } { INITIALIZE { @ } { test } } } } } } } } 
+; Assigning to variable: subnum
 		mov		[rbp + 0], rax
-; Assigning to variable: num } { MUL { num } { subnum } } } } { ASSIGN { subnum } { CALL { factorial } { VARLIST { @ } { subnum } } } } } { INITIALIZE { SUB { num } { 1 } } { subnum } } } { OUTPUT { @ } { num } } } } { BLOCK { @ } { OP { @ } { RETURN { @ } { num } } } } } } } } } } } { FUNCTION { VARLIST } { main { @ } { BLOCK { @ } { OP { OP { OP { OP { OP { @ } { OUTPUT { @ } { test } } } { ASSIGN { test } { CALL { factorial } { VARLIST { @ } { test } } } } } { OUTPUT { @ } { test } } } { INPUT { @ } { test } } } { INITIALIZE { @ } { test } } } } } } } } 
+; Assigning to variable: num
 		mov		[rbp + 0], rax
-; Placing return value (num } } } { ASSIGN { num } { MUL { num } { subnum } } } } { ASSIGN { subnum } { CALL { factorial } { VARLIST { @ } { subnum } } } } } { INITIALIZE { SUB { num } { 1 } } { subnum } } } { OUTPUT { @ } { num } } } } { BLOCK { @ } { OP { @ } { RETURN { @ } { num } } } } } } } } } } } { FUNCTION { VARLIST } { main { @ } { BLOCK { @ } { OP { OP { OP { OP { OP { @ } { OUTPUT { @ } { test } } } { ASSIGN { test } { CALL { factorial } { VARLIST { @ } { test } } } } } { OUTPUT { @ } { test } } } { INPUT { @ } { test } } } { INITIALIZE { @ } { test } } } } } } } } ) to RAX register
+; Placing return value (num) to RAX register
 		mov		rax, [rbp + 0]
 		ret
-0x55730bdafe50:
+0x5580e48f9e50:
 
-main { @ } { BLOCK { @ } { OP { OP { OP { OP { OP { @ } { OUTPUT { @ } { test } } } { ASSIGN { test } { CALL { factorial } { VARLIST { @ } { test } } } } } { OUTPUT { @ } { test } } } { INPUT { @ } { test } } } { INITIALIZE { @ } { test } } } } } } } } :
+main:
 		push	rbp
 		mov		rbp, rsp
-		add		rbp, 0x10
-; Initializing variable: test } } } } } } } } 
+		add		rbp, 16
+; Initializing variable: test
 		mov		[rbp + 0], 0
-; Assigning to variable: test } { CALL { factorial } { VARLIST { @ } { test } } } } } { OUTPUT { @ } { test } } } { INPUT { @ } { test } } } { INITIALIZE { @ } { test } } } } } } } } 
+; Assigning to variable: test
 		mov		[rbp + 0], rax
 
