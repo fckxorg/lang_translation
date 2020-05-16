@@ -17,6 +17,10 @@ void cleanTree(Node* node) {
     }
 }
 
+void prepareStrings(Node* node) {
+    const_cast<char*>(node->value.data())[node->value.size()] = '\0';
+}
+
 int main() {
     FILE* tree_file = fopen("factorial.tree", "r");
     fseek(tree_file, 0, SEEK_END);
@@ -30,6 +34,7 @@ int main() {
 
     Tree ast = Tree(handler);
     ast.Process(cleanTree);
+    ast.Process(prepareStrings);
 
 #ifdef DUMP
     std::ofstream out("dump.dot");

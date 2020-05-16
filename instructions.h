@@ -22,7 +22,12 @@ void mov(FILE* out, char dest[], int immed) {
 
 void mov(FILE* out, char dest_reg[], int offset, char src_reg[]) {
     char sign = offset >= 0 ? '+' : '-'; 
-    fprintf(out, "\t\tmov\t\t[%s %c %d], %s",dest_reg, sign, abs(offset), src_reg);
+    fprintf(out, "\t\tmov\t\t[%s %c %d], %s\n",dest_reg, sign, abs(offset), src_reg);
+}
+
+void mov(FILE* out, char dest_reg[], int offset, int immed) {
+    char sign = offset >= 0 ? '+' : '-'; 
+    fprintf(out, "\t\tmov\t\t[%s %c %d], %d\n",dest_reg, sign, abs(offset), immed);
 }
 
 #endif
