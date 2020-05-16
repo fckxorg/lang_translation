@@ -60,3 +60,7 @@ void SYSCALL(FILE* out) {
 void RET(FILE* out) {
     fprintf(out, "\t\tret\n");
 }
+
+void CALL(FILE* out, const char* function) {
+    fprintf(out, "\t\tcall\t%s", function);
+}
