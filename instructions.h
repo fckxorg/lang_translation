@@ -7,6 +7,8 @@
 //  and system buffers   //
 // ===================== //
 char ATOI[] = "atoi";
+char ITOA[] = "itoa";
+
 char IO_BUFFER[] = "io_buffer";
 
 
@@ -68,6 +70,10 @@ void MOV(FILE* out, char dest_reg[], char src_reg[], int offset) {
     fprintf(out, "\t\tmov\t\t%s, [%s %c %d]\n", dest_reg, src_reg, sign, abs(offset));
 }
 
+void MOV(FILE* out, char dest_reg[], char offset_reg[], char src_reg[]) {
+    fprintf(out, "\t\tmov\t\t[%s + %s], %s\n", dest_reg, offset_reg, src_reg);
+}
+
 void XOR(FILE* out, char reg1[], char reg2[]) {
     fprintf(out, "\t\txor\t\t%s, %s\n", reg1, reg2);
 }
@@ -104,10 +110,40 @@ void SUB(FILE* out, char reg[], int immed) {
     fprintf(out, "\t\tsub\t\t%s, %d\n", reg, immed);
 }
 
+void SUB(FILE* out, char reg1[], char reg2[]) {
+    fprintf(out, "\t\tsub\t\t%s, %s\n", reg1, reg2);
+}
+
 void MUL(FILE* out, char reg[]) {
-    fprintf(out, "\t\tmul\t\trcx\n");
+    fprintf(out, "\t\tmul\t\t%s\n", reg);
 }
 
 void INC(FILE* out, char reg[]) {
     fprintf(out, "\t\tinc\t\t%s\n", reg);
+}
+
+void DEC(FILE* out, char reg[]) {
+    fprintf(out, "\t\tdec\t\t%s\n", reg);
+}
+
+void DIV(FILE* out, char reg[]) {
+    fprintf(out, "\t\tdiv\t\t%s\n", reg);
+}
+
+void PUSHA(FILE* out) {
+    PUSH(out, RAX);
+    PUSH(out, RBX);
+    PUSH(out, RCX);
+    PUSH(out, RDX);
+    PUSH(out, RDI);
+    PUSH(out, RSI);
+}
+
+void POPA(FILE* out) {
+    POP(out, RSI);
+    POP(out, RDI);
+    POP(out, RDX);
+    POP(out, RCX);
+    POP(out, RBX);
+    POP(out, RAX);
 }

@@ -45,6 +45,38 @@ void PrintAtoi(FILE* out) {
     ADD(out, AL, BL);
     INC(out, RSI);
     fprintf(out, "\t\tjmp     atoi_loop\natoi_loop_end:\n");
+    RET(out);
+}
+
+void printItoa(FILE* out) {
+    fprintf(out, "itoa:\n");
+    MOV(out, RBX, 31);
+    MOV(out, RCX, 10);
+    fprintf(out, ".renomLoop:\n");
+    CMP(out, RAX, 0);
+    fprintf(out, "\t\tje\t\t.renomLoopEnd\n");
+    XOR(out, RDX, RDX);
+    DIV(out, RCX);
+    PUSH(out, RAX);
+    MOV(out, RAX, RDX);
+    ADD(out, RAX, '0');
+    MOV(out, IO_BUFFER, RBX, AL);
+    POP(out, RAX);
+    DEC(out, RBX);
+    XOR(out, RDX, RDX);
+    fprintf(out, "\t\tjmp 	.renomLoop\n");		
+		
+    fprintf(out, ".renomLoopEnd:\n");
+    MOV(out, RSI, IO_BUFFER);
+    ADD(out, RSI, RBX);
+    INC(out, RSI);
+    MOV(out, RAX, 32);
+    SUB(out, RAX, RBX);
+    MOV(out, RDX, RAX);
+    MOV(out, RAX, 1);
+    MOV(out, RDI, 1);
+    SYSCALL(out);
+    RET(out);
 }
 
 namespace process {
@@ -79,6 +111,7 @@ void process::ProgramRoot(Node* node, FILE* out) {
     SYSCALL(out);
 
     PrintAtoi(out);
+    printItoa(out);
     // calling declaration processing
     // declarations always start on the right, as it defined in standard
     process::Declaration(node->right, out);
@@ -111,7 +144,8 @@ void process::Function(Node* node, FILE* out) {
     
     // getting local variables names and setting theit offsets in stack
     process::GetLocals(node->right->right, func);
-
+    SUB(out, RSP, func->n_vars * 8);
+    PUSHA(out);
     // process and output block
     process::Block(node->right->right, func, out);
 
@@ -136,7 +170,7 @@ void process::DeclarationVarlist(Node* node, FunctionData* func) {
 void process::GetLocals(Node* node, FunctionData* func) {
     // if INITIALIZE block was found, add variable to fucntion structure
     if(node->value == "INITIALIZE") {
-        func->variables[node->right->value] = - func->n_vars * 8; //TODO find out the right offset for local varibles
+        func->variables[node->right->value] = - func->n_vars * 8 - 16; //TODO find out the right offset for local varibles
         ++(func->n_vars);
     }
 
@@ -228,6 +262,7 @@ void process::Return(Node* node, FunctionData* func, FILE* out) {
     fprintf(out, "; Placing return value (%s) to RAX register\n", var_name);
     MOV(out, RAX, RBP, var_offset);
     //TODO Need to pop every saved value here and destroy stack frame;
+    POPA(out);
     RET(out);
 
 }
@@ -308,5 +343,55 @@ void process::Input(Node* node, FunctionData* func, FILE* out) {
     CALL(out, ATOI);
     MOV(out, RBP, offset, RAX);
 }
-void process::Output(Node* node, FunctionData* func, FILE* out) {}
-void process::Expression(Node* node, FunctionData* func, FILE* out) {}
+
+void process::Output(Node* node, FunctionData* func, FILE* out) {
+    CheckVariableExists(func, node->right->value);
+    
+    fprintf(out, "; Writing %s to stdout\n", node->right->value);
+    int offset = func->variables[node->right->value];
+    MOV(out, RAX, RBP, offset);
+    CALL(out, ITOA);
+}
+
+void process::Expression(Node* node, FunctionData* func, FILE* out) {
+    if(isdigit(*(node->value))) {
+        MOV(out, RAX, atoi(node->value));
+        return;
+    }
+    if(isalpha(*(node->value)) && !node->left && !node->right) {
+        CheckVariableExists(func, node->value);
+        int offset = func->variables[node->value];
+        MOV(out, RAX, RBP, offset);
+        return;
+    }
+    
+    process::Expression(node->left, func, out);
+    PUSH(out, RAX);
+    process::Expression(node->right, func, out);
+    MOV(out, RCX, RAX);
+    POP(out, RAX);
+    MOV(out, RBX, RAX);
+
+    if(strcmp(node->value, "SUB") == 0) {
+        SUB(out, RBX, RCX);
+        MOV(out, RAX, RBX);
+        return;
+    }
+
+    if(strcmp(node->value, "ADD") == 0) {
+        ADD(out, RBX, RCX);
+        MOV(out, RAX, RBX);
+        return;
+    }
+
+    if(strcmp(node->value, "MUL") == 0) {
+        MOV(out, RAX, RBX);
+        MUL(out, RCX);
+        return;
+    }
+
+    if(strcmp(node->value, "CALL") == 0) {
+        process::Call(node, func, out);
+    }
+
+}
