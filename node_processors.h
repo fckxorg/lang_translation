@@ -169,9 +169,8 @@ void process::DeclarationVarlist(Node* node, FunctionData* func) {
 
 void process::GetLocals(Node* node, FunctionData* func) {
     // if INITIALIZE block was found, add variable to fucntion structure
-    if(node->value == "INITIALIZE") {
+    if(strcmp(node->value, "INITIALIZE") == 0) {
         ++func->n_vars;
-        std::cout << func->n_vars << std::endl;
         func->variables[node->right->value] = - (func->n_vars) * 8 - 16; //TODO find out the right offset for local varibles
     }
 
@@ -264,6 +263,7 @@ void process::Return(Node* node, FunctionData* func, FILE* out) {
     MOV(out, RAX, RBP, var_offset);
     //TODO Need to pop every saved value here and destroy stack frame;
     POPA(out);
+    ADD(out, RSP, func->n_vars * 8);
     POP(out, RBP);
     RET(out);
 
@@ -335,6 +335,7 @@ void process::CallVarlist(Node* node, FunctionData* func, FILE* out) {
 void process::Call(Node* node, FunctionData* func, FILE* out) {
         process::CallVarlist(node->right, func, out);
         CALL(out, node->left->value);
+        ADD(out, RSP, 8 * func->n_args);
 }
 
 void process::Input(Node* node, FunctionData* func, FILE* out) {

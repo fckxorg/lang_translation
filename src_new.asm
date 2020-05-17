@@ -59,7 +59,7 @@ factorial:
 		push	rbp
 		mov		rbp, rsp
 		add		rbp, 16
-		sub		rsp, 0
+		sub		rsp, 8
 		push	rbx
 		push	rcx
 		push	rdx
@@ -74,7 +74,7 @@ factorial:
 ; Popping first expression result to RBX
 		pop		rbx
 		cmp		rbx, rcx
-		jne		cond0x5618ad963d90
+		jne		cond0x55ea5c345d90
 
 ; Placing return value (num) to RAX register
 		mov		rax, [rbp + 0]
@@ -83,10 +83,11 @@ factorial:
 		pop		rdx
 		pop		rcx
 		pop		rbx
+		add		rsp, 8
 		pop		rbp
 		ret
-		jmp		cond0x5618ad963e50
-cond0x5618ad963d90:
+		jmp		cond0x55ea5c345e50
+cond0x55ea5c345d90:
 ; Writing num to stdout
 		mov		rax, [rbp + 0]
 		call	itoa
@@ -99,14 +100,15 @@ cond0x5618ad963d90:
 		mov		rbx, rax
 		sub		rbx, rcx
 		mov		rax, rbx
-		mov		[rbp + 0], rax
-		push	qword [rbp + 0]
+		mov		[rbp - 24], rax
+		push	qword [rbp - 24]
 		call	factorial
+		add		rsp, 8
 ; Assigning to variable: subnum
-		mov		[rbp + 0], rax
+		mov		[rbp - 24], rax
 		mov		rax, [rbp + 0]
 		push	rax
-		mov		rax, [rbp + 0]
+		mov		rax, [rbp - 24]
 		mov		rcx, rax
 		pop		rax
 		mov		rbx, rax
@@ -121,34 +123,36 @@ cond0x5618ad963d90:
 		pop		rdx
 		pop		rcx
 		pop		rbx
+		add		rsp, 8
 		pop		rbp
 		ret
-cond0x5618ad963e50:
+cond0x55ea5c345e50:
 
 main:
 		push	rbp
 		mov		rbp, rsp
 		add		rbp, 16
-		sub		rsp, 0
+		sub		rsp, 8
 		push	rbx
 		push	rcx
 		push	rdx
 		push	rdi
 		push	rsi
 ; Initializing variable: test
-		mov		[rbp + 0], 0
+		mov		qword [rbp - 24], 0
 ; Reading test from stdin
 		call	atoi
-		mov		[rbp + 0], rax
+		mov		[rbp - 24], rax
 ; Writing test to stdout
-		mov		rax, [rbp + 0]
+		mov		rax, [rbp - 24]
 		call	itoa
-		push	qword [rbp + 0]
+		push	qword [rbp - 24]
 		call	factorial
+		add		rsp, 0
 ; Assigning to variable: test
-		mov		[rbp + 0], rax
+		mov		[rbp - 24], rax
 ; Writing test to stdout
-		mov		rax, [rbp + 0]
+		mov		rax, [rbp - 24]
 		call	itoa
 
 		section .data
