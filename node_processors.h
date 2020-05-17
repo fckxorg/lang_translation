@@ -80,22 +80,22 @@ void printItoa(FILE* out) {
 }
 
 namespace process {
-    void DeclarationVarlist(Node* node, FunctionData* func); //TODO Offset fix needed
+    void DeclarationVarlist(Node* node, FunctionData* func);    //TODO Offset fix needed
     void ProgramRoot(Node* node, FILE* out);                    // done
     void Declaration(Node* node, FILE* out);                    // done
     void CallVarlist(Node* node, FunctionData* func, FILE* out);// done
-    void Expression(Node* node, FunctionData* func, FILE* out); // calculation result must be stored in RAX
+    void Expression(Node* node, FunctionData* func, FILE* out); // done
     void Intialize(Node* node, FunctionData* func, FILE* out);  // done
     void Condition(Node* node, FunctionData* func, FILE* out);  // done
     void GetLocals(Node* node, FunctionData* func);             // done
-    void Function(Node* node, FILE* out);    // TODO add used registers to saved ones
+    void Function(Node* node, FILE* out);                       // done
     void Operator(Node* node, FunctionData* func, FILE* out);   // done
     void Assign(Node* node, FunctionData* func, FILE* out);     // done
-    void Output(Node* node, FunctionData* func, FILE* out);
+    void Output(Node* node, FunctionData* func, FILE* out);     // done
     void Return(Node* node, FunctionData* func, FILE* out);     // TODO
     void Block(Node* node, FunctionData* func, FILE* out);      // done
-    void While(Node* node, FunctionData* func, FILE* out);      //done
-    void Input(Node* node, FunctionData* func, FILE* out);
+    void While(Node* node, FunctionData* func, FILE* out);      // done
+    void Input(Node* node, FunctionData* func, FILE* out);      // done
     void Call(Node* node, FunctionData* func, FILE* out);       // done
     void If(Node* node, FunctionData* func, FILE* out);         // done
 };
@@ -170,8 +170,9 @@ void process::DeclarationVarlist(Node* node, FunctionData* func) {
 void process::GetLocals(Node* node, FunctionData* func) {
     // if INITIALIZE block was found, add variable to fucntion structure
     if(node->value == "INITIALIZE") {
-        func->variables[node->right->value] = - func->n_vars * 8 - 16; //TODO find out the right offset for local varibles
-        ++(func->n_vars);
+        ++func->n_vars;
+        std::cout << func->n_vars << std::endl;
+        func->variables[node->right->value] = - (func->n_vars) * 8 - 16; //TODO find out the right offset for local varibles
     }
 
     // continue search if possible
@@ -263,6 +264,7 @@ void process::Return(Node* node, FunctionData* func, FILE* out) {
     MOV(out, RAX, RBP, var_offset);
     //TODO Need to pop every saved value here and destroy stack frame;
     POPA(out);
+    POP(out, RBP);
     RET(out);
 
 }

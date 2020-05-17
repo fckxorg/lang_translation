@@ -131,7 +131,6 @@ void DIV(FILE* out, char reg[]) {
 }
 
 void PUSHA(FILE* out) {
-    PUSH(out, RAX);
     PUSH(out, RBX);
     PUSH(out, RCX);
     PUSH(out, RDX);
@@ -145,5 +144,4 @@ void POPA(FILE* out) {
     POP(out, RDX);
     POP(out, RCX);
     POP(out, RBX);
-    POP(out, RAX);
 }
