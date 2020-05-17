@@ -2,16 +2,43 @@
 #include <iostream>
 #endif
 
+// ===================== //
+//  Built-in functions   //
+//  and system buffers   //
+// ===================== //
+char ATOI[] = "atoi";
+char IO_BUFFER[] = "io_buffer";
+
+
+
+// ===================== //
+//     CPU registers     //
+// ===================== //
 char RAX[] = "rax";
 char RBX[] = "rbx";
 char RCX[] = "rcx";
+char RDX[] = "rdx";
+
+char AL[]  = "al";
+char BL[]  = "bl";
 
 char RBP[] = "rbp";
 char RSP[] = "rsp";
 char RDI[] = "rdi";
+char RSI[] = "rsi";
+
+
+// ===================== //
+//     Instructions      //
+// ===================== //
 
 void PUSH(FILE* out, char reg[]) {
     fprintf(out, "\t\tpush\t%s\n", reg);
+}
+
+void PUSH_Q(FILE* out, char reg[], int offset) {
+    char sign = offset >= 0 ? '+' : '-'; 
+    fprintf(out, "\t\tpush\tqword [%s %c %d]\n", reg, sign, abs(offset));
 }
 
 void POP(FILE* out, char reg[]) {
@@ -49,8 +76,16 @@ void ADD(FILE* out, char reg[], int immed) {
     fprintf(out, "\t\tadd\t\t%s, %d\n", reg, immed);
 }
 
+void ADD(FILE* out, char dest_reg[], char src_reg[]) {
+    fprintf(out, "\t\tadd\t\t%s, %s\n", dest_reg, src_reg);
+}
+
 void CMP(FILE* out, char reg1[], char reg2[]) {
     fprintf(out, "\t\tcmp\t\t%s, %s\n", reg1, reg2);
+}
+
+void CMP(FILE* out, char reg[], int immed) {
+    fprintf(out, "\t\tcmp\t\t%s, %d\n", reg, immed);
 }
 
 void SYSCALL(FILE* out) {
@@ -62,5 +97,17 @@ void RET(FILE* out) {
 }
 
 void CALL(FILE* out, const char* function) {
-    fprintf(out, "\t\tcall\t%s", function);
+    fprintf(out, "\t\tcall\t%s\n", function);
+}
+
+void SUB(FILE* out, char reg[], int immed) {
+    fprintf(out, "\t\tsub\t\t%s, %d\n", reg, immed);
+}
+
+void MUL(FILE* out, char reg[]) {
+    fprintf(out, "\t\tmul\t\trcx\n");
+}
+
+void INC(FILE* out, char reg[]) {
+    fprintf(out, "\t\tinc\t\t%s\n", reg);
 }

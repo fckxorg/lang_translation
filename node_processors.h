@@ -25,25 +25,47 @@ void CheckVariableExists(FunctionData* func, const char* var) {
     }
 }
 
+void PrintAtoi(FILE* out) {
+    fprintf(out, "atoi:\n");
+    XOR(out, RAX, RAX);
+    XOR(out, RDI, RDI);
+    MOV(out, RDX, 32);
+    MOV(out, RSI, IO_BUFFER);
+    SYSCALL(out);
+
+    XOR(out, RAX, RAX);
+    XOR(out, RBX, RBX);      
+    MOV(out, RCX, 10);     
+    fprintf(out, "atoi_loop:\n");
+    fprintf(out, "\t\tmov\t\tbl, byte [rsi]\n");
+    CMP(out, BL, 10);
+    fprintf(out, "\t\tje\t\tatoi_loop_end\n");
+    SUB(out, BL, '0');
+    MUL(out, RCX);
+    ADD(out, AL, BL);
+    INC(out, RSI);
+    fprintf(out, "\t\tjmp     atoi_loop\natoi_loop_end:\n");
+}
+
 namespace process {
     void DeclarationVarlist(Node* node, FunctionData* func); //TODO Offset fix needed
-    void ProgramRoot(Node* node, FILE* out); // done
-    void Declaration(Node* node, FILE* out); // done
-    void CallVarlist(Node* node, FILE* out);
+    void ProgramRoot(Node* node, FILE* out);                    // done
+    void Declaration(Node* node, FILE* out);                    // done
+    void CallVarlist(Node* node, FunctionData* func, FILE* out);// done
     void Expression(Node* node, FunctionData* func, FILE* out); // calculation result must be stored in RAX
     void Intialize(Node* node, FunctionData* func, FILE* out);  // done
     void Condition(Node* node, FunctionData* func, FILE* out);  // done
-    void GetLocals(Node* node, FunctionData* func);   // done
+    void GetLocals(Node* node, FunctionData* func);             // done
     void Function(Node* node, FILE* out);    // TODO add used registers to saved ones
-    void Operator(Node* node, FunctionData* func, FILE* out); // done
-    void Assign(Node* node, FunctionData* func, FILE* out);   // done
+    void Operator(Node* node, FunctionData* func, FILE* out);   // done
+    void Assign(Node* node, FunctionData* func, FILE* out);     // done
     void Output(Node* node, FunctionData* func, FILE* out);
-    void Return(Node* node, FunctionData* func, FILE* out);   // TODO
-    void Block(Node* node, FunctionData* func, FILE* out); // done
-    void While(Node* node, FunctionData* func, FILE* out); //done
+    void Return(Node* node, FunctionData* func, FILE* out);     // TODO
+    void Block(Node* node, FunctionData* func, FILE* out);      // done
+    void While(Node* node, FunctionData* func, FILE* out);      //done
     void Input(Node* node, FunctionData* func, FILE* out);
-    void Call(Node* node, FunctionData* func, FILE* out);
-    void If(Node* node, FunctionData* func, FILE* out);    // done
+    void Call(Node* node, FunctionData* func, FILE* out);       // done
+    void If(Node* node, FunctionData* func, FILE* out);         // done
 };
 
 void process::ProgramRoot(Node* node, FILE* out) {
@@ -55,9 +77,13 @@ void process::ProgramRoot(Node* node, FILE* out) {
     MOV(out, RAX, 60);
     XOR(out, RDI, RDI);
     SYSCALL(out);
+
+    PrintAtoi(out);
     // calling declaration processing
     // declarations always start on the right, as it defined in standard
     process::Declaration(node->right, out);
+    fprintf(out, "\t\tsection .data\n");
+    fprintf(out, "io_buffer:\ttimes 32 db 0\n");
 }
 
 void process::Declaration(Node* node, FILE* out) {
@@ -198,8 +224,6 @@ void process::Return(Node* node, FunctionData* func, FILE* out) {
     CheckVariableExists(func, var_name);
 
     int var_offset = func->variables[var_name];
-    char sign = var_offset >= 0 ? '+' : '-'; 
-
 
     fprintf(out, "; Placing return value (%s) to RAX register\n", var_name);
     MOV(out, RAX, RBP, var_offset);
@@ -260,8 +284,29 @@ void process::Condition(Node* node, FunctionData* func, FILE* out) {
     }
 }
 
-void process::Input(Node* node, FunctionData* func, FILE* out) {}
+void process::CallVarlist(Node* node, FunctionData* func, FILE* out) {
+    if(node->left) {
+        process::CallVarlist(node->left, func, out);
+    }
+    if(node->right) {
+        CheckVariableExists(func, node->right->value);
+        int offset = func->variables[node->right->value];
+        PUSH_Q(out, RBP, offset);
+    }
+}
+
+void process::Call(Node* node, FunctionData* func, FILE* out) {
+        process::CallVarlist(node->right, func, out);
+        CALL(out, node->left->value);
+}
+
+void process::Input(Node* node, FunctionData* func, FILE* out) {
+    CheckVariableExists(func, node->right->value);
+    
+    fprintf(out, "; Reading %s from stdin\n", node->right->value);
+    int offset = func->variables[node->right->value];
+    CALL(out, ATOI);
+    MOV(out, RBP, offset, RAX);
+}
 void process::Output(Node* node, FunctionData* func, FILE* out) {}
-void process::Call(Node* node, FunctionData* func, FILE* out) {}
 void process::Expression(Node* node, FunctionData* func, FILE* out) {}
-void CallVarlist(Node* node, FILE* out);
