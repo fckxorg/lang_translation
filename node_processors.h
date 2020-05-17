@@ -246,7 +246,7 @@ void process::Assign(Node* node, FunctionData* func, FILE* out) {
     const char* var_name = node->left->value;
     CheckVariableExists(func, var_name);
     
-    process::Expression(node->left, func, out);
+    process::Expression(node->right, func, out);
 
     int var_offset = func->variables[var_name];
     fprintf(out, "; Assigning to variable: %s\n", var_name);
@@ -273,22 +273,22 @@ void process::If(Node* node, FunctionData* func, FILE* out) {
     process::Block(node->right->right, func, out);
 
     if(node->right->left) {
-        fprintf(out, "\t\tjmp\t\t%p\n", node->right);
+        fprintf(out, "\t\tjmp\t\tcond%p\n", node->right);
     }
 
-    fprintf(out, "%p:\n", node);
+    fprintf(out, "cond%p:\n", node);
 
     if(node->right->left) {
         process::Block(node->right->left, func, out);
-        fprintf(out, "%p:\n", node->right);
+        fprintf(out, "cond%p:\n", node->right);
     }
 }
 
 void process::While(Node* node, FunctionData* func, FILE* out) {
-    fprintf(out, "while_%p:\n", node);
+    fprintf(out, "cond%p:\n", node);
     process::Condition(node, func, out);
     process::Block(node->right, func, out);
-    fprintf(out, "%p:\n", node);
+    fprintf(out, "cond%p:\n", node);
     
 }
 
@@ -309,13 +309,13 @@ void process::Condition(Node* node, FunctionData* func, FILE* out) {
     const char* comp = node->left->value;
 
     if(strcmp(comp, "EQUAL") == 0) {
-        fprintf(out, "\t\tjne\t\t%p\n\n", node);  //using else condition for jump
+        fprintf(out, "\t\tjne\t\tcond%p\n\n", node);  //using else condition for jump
     }
     else if(strcmp(comp, "ABOVE") == 0) {
-        fprintf(out, "\t\tjbe\t\t%p\n\n", node);
+        fprintf(out, "\t\tjbe\t\tcond%p\n\n", node);
     }
     else if(strcmp(comp, "BELOW") == 0) {
-        fprintf(out, "\t\tjae\t\t%p\n\n", node);
+        fprintf(out, "\t\tjae\t\tcond%p\n\n", node);
     }
 }
 
@@ -364,6 +364,10 @@ void process::Expression(Node* node, FunctionData* func, FILE* out) {
         MOV(out, RAX, RBP, offset);
         return;
     }
+    if(strcmp(node->value, "CALL") == 0) {
+        process::Call(node, func, out);
+        return;
+    }
     
     process::Expression(node->left, func, out);
     PUSH(out, RAX);
@@ -388,10 +392,6 @@ void process::Expression(Node* node, FunctionData* func, FILE* out) {
         MOV(out, RAX, RBX);
         MUL(out, RCX);
         return;
-    }
-
-    if(strcmp(node->value, "CALL") == 0) {
-        process::Call(node, func, out);
     }
 
 }

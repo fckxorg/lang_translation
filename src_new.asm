@@ -75,7 +75,7 @@ factorial:
 ; Popping first expression result to RBX
 		pop		rbx
 		cmp		rbx, rcx
-		jne		if_label_start
+		jne		cond0x562d148fbd90
 
 ; Placing return value (num) to RAX register
 		mov		rax, [rbp + 0]
@@ -86,8 +86,8 @@ factorial:
 		pop		rbx
 		pop		rax
 		ret
-		jmp		if_label_end
-if_label_start:
+		jmp		cond0x562d148fbe50
+cond0x562d148fbd90:
 ; Writing num to stdout
 		mov		rax, [rbp + 0]
 		call	itoa
@@ -101,10 +101,18 @@ if_label_start:
 		sub		rbx, rcx
 		mov		rax, rbx
 		mov		[rbp + 0], rax
-		mov		rax, [rbp + 0]
+		push	qword [rbp + 0]
+		call	factorial
 ; Assigning to variable: subnum
 		mov		[rbp + 0], rax
 		mov		rax, [rbp + 0]
+		push	rax
+		mov		rax, [rbp + 0]
+		mov		rcx, rax
+		pop		rax
+		mov		rbx, rax
+		mov		rax, rbx
+		mul		rcx
 ; Assigning to variable: num
 		mov		[rbp + 0], rax
 ; Placing return value (num) to RAX register
@@ -116,7 +124,7 @@ if_label_start:
 		pop		rbx
 		pop		rax
 		ret
-if_label_end:
+cond0x562d148fbe50:
 
 main:
 		push	rbp
@@ -137,7 +145,8 @@ main:
 ; Writing test to stdout
 		mov		rax, [rbp + 0]
 		call	itoa
-		mov		rax, [rbp + 0]
+		push	qword [rbp + 0]
+		call	factorial
 ; Assigning to variable: test
 		mov		[rbp + 0], rax
 ; Writing test to stdout
