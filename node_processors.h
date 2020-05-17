@@ -83,7 +83,7 @@ namespace process {
     void DeclarationVarlist(Node* node, FunctionData* func);    //TODO Offset fix needed
     void ProgramRoot(Node* node, FILE* out);                    // done
     void Declaration(Node* node, FILE* out);                    // done
-    void CallVarlist(Node* node, FunctionData* func, FILE* out);// done
+    void CallVarlist(Node* node, FunctionData* func, FILE* out, int& n_args);// done
     void Expression(Node* node, FunctionData* func, FILE* out); // done
     void Intialize(Node* node, FunctionData* func, FILE* out);  // done
     void Condition(Node* node, FunctionData* func, FILE* out);  // done
@@ -327,21 +327,23 @@ void process::Condition(Node* node, FunctionData* func, FILE* out) {
     }
 }
 
-void process::CallVarlist(Node* node, FunctionData* func, FILE* out) {
+void process::CallVarlist(Node* node, FunctionData* func, FILE* out, int& n_args) {
     if(node->left) {
-        process::CallVarlist(node->left, func, out);
+        process::CallVarlist(node->left, func, out, n_args);
     }
     if(node->right) {
         CheckVariableExists(func, node->right->value);
         int offset = func->variables[node->right->value];
         PUSH_Q(out, RBP, offset);
+        ++n_args;
     }
 }
 
 void process::Call(Node* node, FunctionData* func, FILE* out) {
-        process::CallVarlist(node->right, func, out);
+        int n_args = 0;
+        process::CallVarlist(node->right, func, out, n_args);
         CALL(out, node->left->value);
-        ADD(out, RSP, 8 * func->n_args);
+        ADD(out, RSP, 8 * n_args);
 }
 
 void process::Input(Node* node, FunctionData* func, FILE* out) {
