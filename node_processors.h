@@ -149,6 +149,13 @@ void process::Function(Node* node, FILE* out) {
     // process and output block
     process::Block(node->right->right, func, out);
 
+    if(strcmp(func->name, "main") == 0) {
+        POPA(out);
+        ADD(out, RSP, func->n_vars * 8);
+        POP(out, RBP);
+        RET(out);
+    }
+
     fprintf(out, "\n");
 }
 
@@ -261,7 +268,6 @@ void process::Return(Node* node, FunctionData* func, FILE* out) {
 
     fprintf(out, "; Placing return value (%s) to RAX register\n", var_name);
     MOV(out, RAX, RBP, var_offset);
-    //TODO Need to pop every saved value here and destroy stack frame;
     POPA(out);
     ADD(out, RSP, func->n_vars * 8);
     POP(out, RBP);

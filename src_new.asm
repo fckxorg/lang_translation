@@ -74,7 +74,7 @@ factorial:
 ; Popping first expression result to RBX
 		pop		rbx
 		cmp		rbx, rcx
-		jne		cond0x55ea5c345d90
+		jne		cond0x5566aa1cdd90
 
 ; Placing return value (num) to RAX register
 		mov		rax, [rbp + 0]
@@ -86,8 +86,8 @@ factorial:
 		add		rsp, 8
 		pop		rbp
 		ret
-		jmp		cond0x55ea5c345e50
-cond0x55ea5c345d90:
+		jmp		cond0x5566aa1cde50
+cond0x5566aa1cdd90:
 ; Writing num to stdout
 		mov		rax, [rbp + 0]
 		call	itoa
@@ -126,7 +126,7 @@ cond0x55ea5c345d90:
 		add		rsp, 8
 		pop		rbp
 		ret
-cond0x55ea5c345e50:
+cond0x5566aa1cde50:
 
 main:
 		push	rbp
@@ -154,6 +154,14 @@ main:
 ; Writing test to stdout
 		mov		rax, [rbp - 24]
 		call	itoa
+		pop		rsi
+		pop		rdi
+		pop		rdx
+		pop		rcx
+		pop		rbx
+		add		rsp, 8
+		pop		rbp
+		ret
 
 		section .data
 io_buffer:	times 32 db 0
