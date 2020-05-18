@@ -134,9 +134,7 @@ void process::Function(Node* node, FILE* out) {
 
     // setting function name in structure
     func->name = node->right->value;
-
-    fprintf(out, func->name);
-    fprintf(out, ":\n");
+    LABEL(out, func->name);;
     PUSH(out, RBP);
     MOV(out, RBP, RSP);
     ADD(out, RBP, STACK_FRAME_OFFSET);
