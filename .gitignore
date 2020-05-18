@@ -1,0 +1,7 @@
+.vscode/*
+build/*
+dump.dot
+dump.png
+src_new.o
+a.out
+src_new.asm

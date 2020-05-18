@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/home/maxim/Programming/AsmCourse/lang_translation/build",
-  "command": "/usr/bin/c++    -O3 -g   -std=gnu++17 -o CMakeFiles/translator.dir/main.cpp.o -c /home/maxim/Programming/AsmCourse/lang_translation/main.cpp",
-  "file": "/home/maxim/Programming/AsmCourse/lang_translation/main.cpp"
-}
-]

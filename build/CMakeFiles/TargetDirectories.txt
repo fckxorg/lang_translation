@@ -1,3 +1,0 @@
-/home/maxim/Programming/AsmCourse/lang_translation/build/CMakeFiles/rebuild_cache.dir
-/home/maxim/Programming/AsmCourse/lang_translation/build/CMakeFiles/translator.dir
-/home/maxim/Programming/AsmCourse/lang_translation/build/CMakeFiles/edit_cache.dir
