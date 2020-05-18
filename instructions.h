@@ -166,6 +166,22 @@ void JMP(FILE* out, const char* label) {
     fprintf(out, "\t\tjmp\t\t%s\n", label);
 }
 
+void JMP(FILE* out, const char* prefix, void* ptr) {
+    fprintf(out, "\t\tjmp\t\t%s%p\n\n", prefix, ptr);
+}
+
+void JNE(FILE* out, const char* prefix, void* ptr) {
+    fprintf(out, "\t\tjne\t\t%s%p\n\n", prefix, ptr);
+}
+
+void JBE(FILE* out, const char* prefix, void* ptr) {
+    fprintf(out, "\t\tjbe\t\t%s%p\n\n", prefix, ptr);
+}
+
+void JAE(FILE* out, const char* prefix, void* ptr) {
+    fprintf(out, "\t\tjae\t\t%s%p\n\n", prefix, ptr);
+}
+
 void LABEL(FILE* out, const char* label) {
     fprintf(out, "%s:\n", label);
 }

@@ -281,7 +281,7 @@ void process::If(Node* node, FunctionData* func, FILE* out) {
     process::Block(node->right->right, func, out);
 
     if(node->right->left) {
-        fprintf(out, "\t\tjmp\t\tcond%p\n", node->right);
+        JMP(out, "cond", node->right);
     }
 
     LABEL(out, "cond", node);
@@ -317,13 +317,13 @@ void process::Condition(Node* node, FunctionData* func, FILE* out) {
     const char* comp = node->left->value;
 
     if(strcmp(comp, "EQUAL") == 0) {
-        fprintf(out, "\t\tjne\t\tcond%p\n\n", node);  //using else condition for jump
+        JNE(out, "cond", node); //using else condition for jump
     }
     else if(strcmp(comp, "ABOVE") == 0) {
-        fprintf(out, "\t\tjbe\t\tcond%p\n\n", node);
+        JBE(out, "cond", node);
     }
     else if(strcmp(comp, "BELOW") == 0) {
-        fprintf(out, "\t\tjae\t\tcond%p\n\n", node);
+        JAE(out, "cond", node);
     }
 }
 
