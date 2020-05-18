@@ -37,7 +37,7 @@ void PrintAtoi(FILE* out) {
     XOR(out, RAX, RAX);
     XOR(out, RBX, RBX);      
     MOV(out, RCX, INPUT_NUMBER_SYSTEM);     
-    fprintf(out, "atoi_loop:\n");
+    LABEL(out, ATOI_LOOP);
     fprintf(out, "\t\tmov\t\tbl, byte [rsi]\n");
     CMP(out, BL, '\n');
     JE(out, ATOI_LOOP_END);
@@ -45,7 +45,8 @@ void PrintAtoi(FILE* out) {
     MUL(out, RCX);
     ADD(out, AL, BL);
     INC(out, RSI);
-    fprintf(out, "\t\tjmp     atoi_loop\natoi_loop_end:\n");
+    JMP(out, ATOI_LOOP);
+    LABEL(out, ATOI_LOOP_END);
     RET(out);
 }
 

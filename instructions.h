@@ -149,3 +149,11 @@ void POPA(FILE* out) {
 void JE(FILE* out, const char* label) {
     fprintf(out, "\t\tje\t\t%s\n", label);
 }
+
+void JMP(FILE* out, const char* label) {
+    fprintf(out, "\t\tjmp\t\t%s\n", label);
+}
+
+void LABEL(FILE* out, const char* label) {
+    fprintf(out, "%s:\n", label);
+}
