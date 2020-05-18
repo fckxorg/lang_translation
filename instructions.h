@@ -29,6 +29,11 @@ char RSI[] = "rsi";
 // ===================== //
 //      Directives       //
 //====================== //
+
+void GLOBAL(FILE* out, const char* label) {
+    fprintf(out, "\t\tglobal %s\n", label);
+}
+
 void SECTION_TEXT(FILE* out) {
     fprintf(out, "\t\tsection .text\n");
 }

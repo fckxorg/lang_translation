@@ -104,9 +104,9 @@ namespace process {
 
 void process::ProgramRoot(Node* node, FILE* out) {
     // calls main and finishes program
-    fprintf(out, "\t\tglobal _start\n");
+    GLOBAL(out, START_LABEL);
     SECTION_TEXT(out);
-    fprintf(out, "_start:\n");
+    LABEL(out, START_LABEL);
     fprintf(out, "\t\tcall\tmain\n");
     MOV(out, RAX, 60);
     XOR(out, RDI, RDI);
