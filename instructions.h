@@ -9,7 +9,6 @@
 char IO_BUFFER[] = "io_buffer";
 
 
-
 // ===================== //
 //     CPU registers     //
 // ===================== //
@@ -169,4 +168,14 @@ void JMP(FILE* out, const char* label) {
 
 void LABEL(FILE* out, const char* label) {
     fprintf(out, "%s:\n", label);
+}
+
+
+// ===================== //
+//  Assembly commenting  //
+//      utilities        //
+// ===================== //
+
+void COMMENT_INITIALIZING_VARIABLE(FILE* out, const char* var_name) {
+    fprintf(out , "; Initializing variable: %s\n", var_name);
 }

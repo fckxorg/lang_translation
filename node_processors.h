@@ -149,6 +149,8 @@ void process::Function(Node* node, FILE* out) {
     // process and output block
     process::Block(node->right->right, func, out);
 
+    // as it defined in standard main 
+    // doesn't have return instruction by default
     if(strcmp(func->name, "main") == 0) {
         POPA(out);
         ADD(out, RSP, func->n_vars * ELEMENT_SIZE);
@@ -234,10 +236,9 @@ void process::Operator(Node* node, FunctionData* func, FILE* out) {
 void process::Intialize(Node* node, FunctionData* func, FILE* out) {
     const char* var_name = node->right->value;
     CheckVariableExists(func, var_name);
-
     int var_offset = func->variables[var_name];
 
-    fprintf(out , "; Initializing variable: %s\n", var_name);
+    COMMENT_INITIALIZING_VARIABLE(out, var_name);
 
     if(node->left) {
         process::Expression(node->left, func, out);
@@ -308,7 +309,7 @@ void process::Condition(Node* node, FunctionData* func, FILE* out) {
     fprintf(out, "; Moving right expression to RCX\n");
     MOV(out, RCX, RAX);
 
-    fprintf(out, "; Popping first expression result to RBX\n");
+    fprintf(out, "; Popping left expression result to RBX\n");
     POP(out, RBX);
 
     CMP(out, RBX, RCX);
