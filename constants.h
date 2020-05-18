@@ -22,4 +22,6 @@ char ITOA[]                     = "itoa";
 char RENOMINATION_LOOP[]        = ".renomLoop";
 char RENOMINATION_LOOP_END[]    = ".renomLoopEnd";
 
+char START_LABEL[]              = "_start";
+
 #endif

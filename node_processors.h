@@ -105,7 +105,7 @@ namespace process {
 void process::ProgramRoot(Node* node, FILE* out) {
     // calls main and finishes program
     fprintf(out, "\t\tglobal _start\n");
-    fprintf(out, "\t\tsection .text\n");
+    SECTION_TEXT(out);
     fprintf(out, "_start:\n");
     fprintf(out, "\t\tcall\tmain\n");
     MOV(out, RAX, 60);
@@ -117,7 +117,7 @@ void process::ProgramRoot(Node* node, FILE* out) {
     // calling declaration processing
     // declarations always start on the right, as it defined in standard
     process::Declaration(node->right, out);
-    fprintf(out, "\t\tsection .data\n");
+    SECTION_DATA(out);
     fprintf(out, "io_buffer:\ttimes 32 db 0\n");
 }
 

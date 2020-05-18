@@ -26,6 +26,17 @@ char RSP[] = "rsp";
 char RDI[] = "rdi";
 char RSI[] = "rsi";
 
+// ===================== //
+//      Directives       //
+//====================== //
+void SECTION_TEXT(FILE* out) {
+    fprintf(out, "\t\tsection .text\n");
+}
+
+void SECTION_DATA(FILE* out) {
+    fprintf(out, "\t\tsection .data\n");
+}
+
 
 // ===================== //
 //     Instructions      //
