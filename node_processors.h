@@ -256,7 +256,7 @@ void process::Assign(Node* node, FunctionData* func, FILE* out) {
     process::Expression(node->right, func, out);
 
     int var_offset = func->variables[var_name];
-    fprintf(out, "; Assigning to variable: %s\n", var_name);
+    COMMENT_ASSIGNING_TO_VARIABLE(out, var_name);
     MOV(out, RBP, var_offset, RAX);
 }
 
@@ -266,7 +266,7 @@ void process::Return(Node* node, FunctionData* func, FILE* out) {
 
     int var_offset = func->variables[var_name];
 
-    fprintf(out, "; Placing return value (%s) to RAX register\n", var_name);
+    COMMENT_RETURN(out, var_name);
     MOV(out, RAX, RBP, var_offset);
     POPA(out);
     ADD(out, RSP, func->n_vars * ELEMENT_SIZE);
@@ -302,14 +302,14 @@ void process::While(Node* node, FunctionData* func, FILE* out) {
 
 void process::Condition(Node* node, FunctionData* func, FILE* out) {
     process::Expression(node->left->left, func, out);
-    fprintf(out, "; Saving left expression result to stack\n");
+    COMMENT_EXPRESSION_LEFT_PART_SAVING(out);
     PUSH(out, RAX);
     
     process::Expression(node->left->right, func, out);
-    fprintf(out, "; Moving right expression to RCX\n");
+    COMMENT_EXPRESSION_RIGHT_PART_SAVING(out);
     MOV(out, RCX, RAX);
 
-    fprintf(out, "; Popping left expression result to RBX\n");
+    COMMENT_EXPRESSION_LEFT_PART_RESTORING(out);
     POP(out, RBX);
 
     CMP(out, RBX, RCX);
@@ -358,7 +358,7 @@ void process::Input(Node* node, FunctionData* func, FILE* out) {
 void process::Output(Node* node, FunctionData* func, FILE* out) {
     CheckVariableExists(func, node->right->value);
     
-    fprintf(out, "; Writing %s to stdout\n", node->right->value);
+    COMMENT_OUTPUT(out, node->right->value);
     int offset = func->variables[node->right->value];
     MOV(out, RAX, RBP, offset);
     CALL(out, ITOA);

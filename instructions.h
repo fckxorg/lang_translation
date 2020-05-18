@@ -179,3 +179,27 @@ void LABEL(FILE* out, const char* label) {
 void COMMENT_INITIALIZING_VARIABLE(FILE* out, const char* var_name) {
     fprintf(out , "; Initializing variable: %s\n", var_name);
 }
+
+void COMMENT_ASSIGNING_TO_VARIABLE(FILE* out, const char* var_name) {
+    fprintf(out, "; Assigning to variable: %s\n", var_name);
+}
+
+void COMMENT_OUTPUT(FILE* out, const char* var_name) {
+    fprintf(out, "; Writing %s to stdout\n", var_name);
+}
+
+void COMMENT_RETURN(FILE* out, const char* var_name) {
+    fprintf(out, "; Placing return value (%s) to RAX register\n", var_name);
+}
+
+void COMMENT_EXPRESSION_LEFT_PART_SAVING(FILE* out) {
+    fprintf(out, "; Saving left expression result to stack\n");
+}
+
+void COMMENT_EXPRESSION_LEFT_PART_RESTORING(FILE* out) {
+    fprintf(out, "; Popping left expression result to RBX\n");
+}
+
+void COMMENT_EXPRESSION_RIGHT_PART_SAVING(FILE* out) {
+    fprintf(out, "; Moving right expression to RCX\n");
+}
