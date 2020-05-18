@@ -3,6 +3,7 @@
 #include "tree.h"
 #include "instructions.h"
 #include "hash_table/hash_table.h"
+#include "constants.h"
 
 
 struct FunctionData {
@@ -10,8 +11,8 @@ struct FunctionData {
     int n_args = 0;
     int n_vars = 0;
 
-    //positive offset stands for argmunets, relative to return address
-    //negative offset stands for local vars, relative to last push-saved register
+    //positive offset stands for argmunets, relative to RBP position
+    //negative offset stands for local vars, relative to RBP position
     HashTable variables = {};
 
     FunctionData() = default;
@@ -29,16 +30,16 @@ void PrintAtoi(FILE* out) {
     fprintf(out, "atoi:\n");
     XOR(out, RAX, RAX);
     XOR(out, RDI, RDI);
-    MOV(out, RDX, 32);
+    MOV(out, RDX, IO_BUFFER_SIZE);
     MOV(out, RSI, IO_BUFFER);
     SYSCALL(out);
 
     XOR(out, RAX, RAX);
     XOR(out, RBX, RBX);      
-    MOV(out, RCX, 10);     
+    MOV(out, RCX, INPUT_NUMBER_SYSTEM);     
     fprintf(out, "atoi_loop:\n");
     fprintf(out, "\t\tmov\t\tbl, byte [rsi]\n");
-    CMP(out, BL, 10);
+    CMP(out, BL, '\n');
     fprintf(out, "\t\tje\t\tatoi_loop_end\n");
     SUB(out, BL, '0');
     MUL(out, RCX);
@@ -50,8 +51,8 @@ void PrintAtoi(FILE* out) {
 
 void printItoa(FILE* out) {
     fprintf(out, "itoa:\n");
-    MOV(out, RBX, 31);
-    MOV(out, RCX, 10);
+    MOV(out, RBX, IO_BUFFER_SIZE - 1);
+    MOV(out, RCX, OUTPUT_NUMBER_SYSTEM);
     fprintf(out, ".renomLoop:\n");
     CMP(out, RAX, 0);
     fprintf(out, "\t\tje\t\t.renomLoopEnd\n");
@@ -70,7 +71,7 @@ void printItoa(FILE* out) {
     MOV(out, RSI, IO_BUFFER);
     ADD(out, RSI, RBX);
     INC(out, RSI);
-    MOV(out, RAX, 32);
+    MOV(out, RAX, IO_BUFFER_SIZE);
     SUB(out, RAX, RBX);
     MOV(out, RDX, RAX);
     MOV(out, RAX, 1);
@@ -80,24 +81,24 @@ void printItoa(FILE* out) {
 }
 
 namespace process {
-    void DeclarationVarlist(Node* node, FunctionData* func);    //TODO Offset fix needed
-    void ProgramRoot(Node* node, FILE* out);                    // done
-    void Declaration(Node* node, FILE* out);                    // done
-    void CallVarlist(Node* node, FunctionData* func, FILE* out, int& n_args);// done
-    void Expression(Node* node, FunctionData* func, FILE* out); // done
-    void Intialize(Node* node, FunctionData* func, FILE* out);  // done
-    void Condition(Node* node, FunctionData* func, FILE* out);  // done
-    void GetLocals(Node* node, FunctionData* func);             // done
-    void Function(Node* node, FILE* out);                       // done
-    void Operator(Node* node, FunctionData* func, FILE* out);   // done
-    void Assign(Node* node, FunctionData* func, FILE* out);     // done
-    void Output(Node* node, FunctionData* func, FILE* out);     // done
-    void Return(Node* node, FunctionData* func, FILE* out);     // TODO
-    void Block(Node* node, FunctionData* func, FILE* out);      // done
-    void While(Node* node, FunctionData* func, FILE* out);      // done
-    void Input(Node* node, FunctionData* func, FILE* out);      // done
-    void Call(Node* node, FunctionData* func, FILE* out);       // done
-    void If(Node* node, FunctionData* func, FILE* out);         // done
+    void DeclarationVarlist(Node* node, FunctionData* func);                    // done
+    void ProgramRoot(Node* node, FILE* out);                                    // done
+    void Declaration(Node* node, FILE* out);                                    // done
+    void CallVarlist(Node* node, FunctionData* func, FILE* out, int& n_args);   // done
+    void Expression(Node* node, FunctionData* func, FILE* out);                 // done
+    void Intialize(Node* node, FunctionData* func, FILE* out);                  // done
+    void Condition(Node* node, FunctionData* func, FILE* out);                  // done
+    void GetLocals(Node* node, FunctionData* func);                             // done
+    void Function(Node* node, FILE* out);                                       // done
+    void Operator(Node* node, FunctionData* func, FILE* out);                   // done
+    void Assign(Node* node, FunctionData* func, FILE* out);                     // done
+    void Output(Node* node, FunctionData* func, FILE* out);                     // done
+    void Return(Node* node, FunctionData* func, FILE* out);                     // done
+    void Block(Node* node, FunctionData* func, FILE* out);                      // done
+    void While(Node* node, FunctionData* func, FILE* out);                      // done
+    void Input(Node* node, FunctionData* func, FILE* out);                      // done
+    void Call(Node* node, FunctionData* func, FILE* out);                       // done
+    void If(Node* node, FunctionData* func, FILE* out);                         // done
 };
 
 void process::ProgramRoot(Node* node, FILE* out) {
@@ -137,21 +138,21 @@ void process::Function(Node* node, FILE* out) {
     fprintf(out, ":\n");
     PUSH(out, RBP);
     MOV(out, RBP, RSP);
-    ADD(out, RBP, 0x10);
+    ADD(out, RBP, STACK_FRAME_OFFSET);
 
     // getting number of args, their names and setting their offsets in stack
     process::DeclarationVarlist(node->left, func);
     
     // getting local variables names and setting theit offsets in stack
     process::GetLocals(node->right->right, func);
-    SUB(out, RSP, func->n_vars * 8);
+    SUB(out, RSP, func->n_vars * ELEMENT_SIZE);
     PUSHA(out);
     // process and output block
     process::Block(node->right->right, func, out);
 
     if(strcmp(func->name, "main") == 0) {
         POPA(out);
-        ADD(out, RSP, func->n_vars * 8);
+        ADD(out, RSP, func->n_vars * ELEMENT_SIZE);
         POP(out, RBP);
         RET(out);
     }
@@ -164,7 +165,7 @@ void process::DeclarationVarlist(Node* node, FunctionData* func) {
     // if list has variable add it to function structure
 
     if(node->right) {
-        func->variables[node->right->value] = func->n_args * 8; //TODO find out the right offset for local varibles
+        func->variables[node->right->value] = func->n_args * ELEMENT_SIZE; //TODO find out the right offset for local varibles
         ++(func->n_args);
     }
 
@@ -178,11 +179,10 @@ void process::GetLocals(Node* node, FunctionData* func) {
     // if INITIALIZE block was found, add variable to fucntion structure
     if(strcmp(node->value, "INITIALIZE") == 0) {
         ++func->n_vars;
-        func->variables[node->right->value] = - (func->n_vars) * 8 - 16; //TODO find out the right offset for local varibles
+        func->variables[node->right->value] = - (func->n_vars) * ELEMENT_SIZE - STACK_FRAME_OFFSET; //TODO find out the right offset for local varibles
     }
 
     // continue search if possible
-
     if(node->left) {
         GetLocals(node->left, func);
     }
@@ -340,10 +340,10 @@ void process::CallVarlist(Node* node, FunctionData* func, FILE* out, int& n_args
 }
 
 void process::Call(Node* node, FunctionData* func, FILE* out) {
-        int n_args = 0;
-        process::CallVarlist(node->right, func, out, n_args);
-        CALL(out, node->left->value);
-        ADD(out, RSP, 8 * n_args);
+    int n_args = 0;
+    process::CallVarlist(node->right, func, out, n_args);
+    CALL(out, node->left->value);
+    ADD(out, RSP, ELEMENT_SIZE * n_args);
 }
 
 void process::Input(Node* node, FunctionData* func, FILE* out) {

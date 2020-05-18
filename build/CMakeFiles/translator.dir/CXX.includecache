@@ -6,6 +6,8 @@
 
 #IncludeRegexTransform: 
 
+/home/maxim/Programming/AsmCourse/lang_translation/constants.h
+
 /home/maxim/Programming/AsmCourse/lang_translation/hash_table/custom_list.h
 
 /home/maxim/Programming/AsmCourse/lang_translation/hash_table/hash_table.h
@@ -41,6 +43,8 @@ instructions.h
 /home/maxim/Programming/AsmCourse/lang_translation/instructions.h
 hash_table/hash_table.h
 /home/maxim/Programming/AsmCourse/lang_translation/hash_table/hash_table.h
+constants.h
+/home/maxim/Programming/AsmCourse/lang_translation/constants.h
 
 /home/maxim/Programming/AsmCourse/lang_translation/token_handler.h
 string_view
