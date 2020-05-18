@@ -40,7 +40,7 @@ void PrintAtoi(FILE* out) {
     fprintf(out, "atoi_loop:\n");
     fprintf(out, "\t\tmov\t\tbl, byte [rsi]\n");
     CMP(out, BL, '\n');
-    fprintf(out, "\t\tje\t\tatoi_loop_end\n");
+    JE(out, ATOI_LOOP_END);
     SUB(out, BL, '0');
     MUL(out, RCX);
     ADD(out, AL, BL);
@@ -269,7 +269,7 @@ void process::Return(Node* node, FunctionData* func, FILE* out) {
     fprintf(out, "; Placing return value (%s) to RAX register\n", var_name);
     MOV(out, RAX, RBP, var_offset);
     POPA(out);
-    ADD(out, RSP, func->n_vars * 8);
+    ADD(out, RSP, func->n_vars * ELEMENT_SIZE);
     POP(out, RBP);
     RET(out);
 

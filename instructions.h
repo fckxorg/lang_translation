@@ -145,3 +145,7 @@ void POPA(FILE* out) {
     POP(out, RCX);
     POP(out, RBX);
 }
+
+void JE(FILE* out, const char* label) {
+    fprintf(out, "\t\tje\t\t%s\n", label);
+}
