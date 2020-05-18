@@ -6,9 +6,6 @@
 //  Built-in functions   //
 //  and system buffers   //
 // ===================== //
-char ATOI[] = "atoi";
-char ITOA[] = "itoa";
-
 char IO_BUFFER[] = "io_buffer";
 
 

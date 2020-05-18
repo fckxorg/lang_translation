@@ -27,7 +27,7 @@ void CheckVariableExists(FunctionData* func, const char* var) {
 }
 
 void PrintAtoi(FILE* out) {
-    fprintf(out, "atoi:\n");
+    LABEL(out, ATOI);
     XOR(out, RAX, RAX);
     XOR(out, RDI, RDI);
     MOV(out, RDX, IO_BUFFER_SIZE);
@@ -51,12 +51,12 @@ void PrintAtoi(FILE* out) {
 }
 
 void printItoa(FILE* out) {
-    fprintf(out, "itoa:\n");
+    LABEL(out, ITOA);
     MOV(out, RBX, IO_BUFFER_SIZE - 1);
     MOV(out, RCX, OUTPUT_NUMBER_SYSTEM);
-    fprintf(out, ".renomLoop:\n");
+    LABEL(out, RENOMINATION_LOOP);
     CMP(out, RAX, 0);
-    fprintf(out, "\t\tje\t\t.renomLoopEnd\n");
+    JE(out, RENOMINATION_LOOP_END);
     XOR(out, RDX, RDX);
     DIV(out, RCX);
     PUSH(out, RAX);
@@ -66,9 +66,9 @@ void printItoa(FILE* out) {
     POP(out, RAX);
     DEC(out, RBX);
     XOR(out, RDX, RDX);
-    fprintf(out, "\t\tjmp 	.renomLoop\n");		
+    JMP(out, RENOMINATION_LOOP);		
 		
-    fprintf(out, ".renomLoopEnd:\n");
+    LABEL(out, RENOMINATION_LOOP_END);
     MOV(out, RSI, IO_BUFFER);
     ADD(out, RSI, RBX);
     INC(out, RSI);
