@@ -170,6 +170,9 @@ void LABEL(FILE* out, const char* label) {
     fprintf(out, "%s:\n", label);
 }
 
+void LABEL(FILE* out, const char* prefix, void* ptr) {
+    fprintf(out, "%s%p:\n", prefix, ptr);
+}
 
 // ===================== //
 //  Assembly commenting  //

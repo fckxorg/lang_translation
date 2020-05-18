@@ -284,7 +284,8 @@ void process::If(Node* node, FunctionData* func, FILE* out) {
         fprintf(out, "\t\tjmp\t\tcond%p\n", node->right);
     }
 
-    fprintf(out, "cond%p:\n", node);
+    LABEL(out, "cond", node);
+    //fprintf(out, "cond%p:\n", node);
 
     if(node->right->left) {
         process::Block(node->right->left, func, out);
