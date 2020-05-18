@@ -285,19 +285,18 @@ void process::If(Node* node, FunctionData* func, FILE* out) {
     }
 
     LABEL(out, "cond", node);
-    //fprintf(out, "cond%p:\n", node);
 
     if(node->right->left) {
         process::Block(node->right->left, func, out);
-        fprintf(out, "cond%p:\n", node->right);
+        LABEL(out, "cond", node->right);
     }
 }
 
 void process::While(Node* node, FunctionData* func, FILE* out) {
-    fprintf(out, "cond%p:\n", node);
+    LABEL(out, "cond", node);
     process::Condition(node, func, out);
     process::Block(node->right, func, out);
-    fprintf(out, "cond%p:\n", node);
+    LABEL(out, "cond", node->right);
     
 }
 
