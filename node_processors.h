@@ -349,7 +349,7 @@ void process::Call(Node* node, FunctionData* func, FILE* out) {
 void process::Input(Node* node, FunctionData* func, FILE* out) {
     CheckVariableExists(func, node->right->value);
     
-    fprintf(out, "; Reading %s from stdin\n", node->right->value);
+    COMMENT_INPUT(out, node->right->value);
     int offset = func->variables[node->right->value];
     CALL(out, ATOI);
     MOV(out, RBP, offset, RAX);

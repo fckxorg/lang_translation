@@ -188,6 +188,10 @@ void COMMENT_OUTPUT(FILE* out, const char* var_name) {
     fprintf(out, "; Writing %s to stdout\n", var_name);
 }
 
+void COMMENT_INPUT(FILE* out, const char* var_name) {
+    fprintf(out, "; Reading %s from stdin\n", var_name);
+}
+
 void COMMENT_RETURN(FILE* out, const char* var_name) {
     fprintf(out, "; Placing return value (%s) to RAX register\n", var_name);
 }
