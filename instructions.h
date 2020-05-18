@@ -226,3 +226,11 @@ void COMMENT_EXPRESSION_LEFT_PART_RESTORING(FILE* out) {
 void COMMENT_EXPRESSION_RIGHT_PART_SAVING(FILE* out) {
     fprintf(out, "; Moving right expression to RCX\n");
 }
+
+// ===================== //
+//   Miscellaneous       //
+// ===================== //
+
+void LINE_FEED(FILE* out) {
+    fprintf(out, "\n");
+}

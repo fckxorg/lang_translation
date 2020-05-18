@@ -107,7 +107,7 @@ void process::ProgramRoot(Node* node, FILE* out) {
     GLOBAL(out, START_LABEL);
     SECTION_TEXT(out);
     LABEL(out, START_LABEL);
-    fprintf(out, "\t\tcall\tmain\n");
+    CALL(out, "main");
     MOV(out, RAX, 60);
     XOR(out, RDI, RDI);
     SYSCALL(out);
@@ -157,8 +157,7 @@ void process::Function(Node* node, FILE* out) {
         POP(out, RBP);
         RET(out);
     }
-
-    fprintf(out, "\n");
+    LINE_FEED(out);
 }
 
 void process::DeclarationVarlist(Node* node, FunctionData* func) {
