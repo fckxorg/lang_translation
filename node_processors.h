@@ -244,7 +244,7 @@ void process::Intialize(Node* node, FunctionData* func, FILE* out) {
         MOV(out, RBP, var_offset, RAX);
     }
     else {
-        MOV(out, RBP, var_offset, 0);
+        MOV(out, QWORD, RBP, var_offset, 0);
     }
 }
 
@@ -333,7 +333,7 @@ void process::CallVarlist(Node* node, FunctionData* func, FILE* out, int& n_args
     if(node->right) {
         CheckVariableExists(func, node->right->value);
         int offset = func->variables[node->right->value];
-        PUSH_Q(out, RBP, offset);
+        PUSH(out, QWORD, RBP, offset);
         ++n_args;
     }
 }
