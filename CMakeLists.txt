@@ -4,4 +4,5 @@ project(translator)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-O3")
 
-add_executable(translator main.cpp token_handler.h tree.h)
+
+add_executable(translator main.cpp)
