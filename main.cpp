@@ -44,5 +44,7 @@ int main() {
 
     fclose(assembly);
 
+    system("nasm -felf64 src_new.asm");
+    system("ld src_new.o");
     return 0;
 }

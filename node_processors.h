@@ -404,4 +404,10 @@ void process::Expression(Node* node, FunctionData* func, FILE* out) {
         return;
     }
 
+    if(strcmp(node->value, "DIV") == 0) {
+        MOV(out, RAX, RBX);
+        DIV(out, RCX);
+        return;
+    }
+
 }
