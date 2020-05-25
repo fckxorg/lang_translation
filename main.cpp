@@ -1,5 +1,6 @@
 #include <cstring>
 #include "lang_proc_lib/node_processors.h"
+#include "file_functions.h"
 
 
 void cleanTree(Node* node) {
@@ -12,20 +13,6 @@ void cleanTree(Node* node) {
         delete node->right;
         node->right = nullptr;
     }
-}
-
-size_t getFileSize(FILE* file) {
-    fseek(file, 0, SEEK_END);
-    size_t size = ftell(file);
-    fseek(file, 0, SEEK_SET);
-    return size;
-}
-
-bool fileOpened(FILE* file) {
-    if(!file) {
-        std::cerr << "Error opening file!\n";
-    }
-    return file;
 }
 
 int main() {
