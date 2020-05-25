@@ -35,7 +35,7 @@ int main() {
 
     size_t size = getFileSize(tree_file);
 
-    char* tree_data = new char[size]();
+    char* tree_data = new char[size + 1]();
     fread(tree_data, sizeof(char), size, tree_file);
     fclose(tree_file);
 
