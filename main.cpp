@@ -1,9 +1,6 @@
 #include <cstring>
 #include "node_processors.h"
 
-#define DUMP 0
-#define FUNCTIONS_TABLE 0
-
 using std::vector;
 
 void cleanTree(Node* node) {
@@ -31,12 +28,6 @@ int main() {
 
     Tree ast = Tree(handler);
     ast.Process(cleanTree);
-
-#ifdef DUMP
-    std::ofstream out("dump.dot");
-    ast.Dump(out);
-    out.close();
-#endif
 
     FILE* assembly = fopen("src_new.asm", "w");
 

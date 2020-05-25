@@ -1,6 +1,6 @@
 #include <vector>
 #include <unordered_map>
-#include "tree.h"
+#include "tree/tree.h"
 #include "instructions.h"
 #include "hash_table/hash_table.h"
 #include "constants.h"
