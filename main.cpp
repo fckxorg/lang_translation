@@ -1,7 +1,7 @@
 #include <cstring>
 #include "lang_proc_lib/node_processors.h"
 #include "file_functions.h"
-#include "extensions.h"
+#include "cmd.h"
 
 
 const char HELP_MESSAGE[] = "Usage: translator [input_filename] [output_filename]\n";
@@ -28,7 +28,10 @@ int main(int argc, char* argv[]) {
     process::ProgramRoot(ast.GetRoot(), assembly);
     fclose(assembly);
 
-    system("nasm -felf64 src_new.asm");
+    NASMCompile(asm_filename);
     system("ld src_new.o");
+
+    delete[] asm_filename;
+    delete[] object_filename;
     return 0;
 }
