@@ -158,6 +158,7 @@ void process::Function(Node* node, FILE* out) {
         RET(out);
     }
     LINE_FEED(out);
+    delete func;
 }
 
 void process::DeclarationVarlist(Node* node, FunctionData* func) {
