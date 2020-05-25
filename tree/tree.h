@@ -91,3 +91,15 @@ class Tree {
             root->Process(func);
         }
 };
+
+void cleanTree(Node* node) {
+    if(node->left && strcmp(node->left->value, "@") == 0) {
+        delete node->left;
+        node->left = nullptr;
+    }
+
+    if(node->right && strcmp(node->right->value, "@") == 0) {
+        delete node->right;
+        node->right = nullptr;
+    }
+}
