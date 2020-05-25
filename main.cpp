@@ -17,14 +17,8 @@ void cleanTree(Node* node) {
 
 int main() {
 
-    FILE* tree_file = fopen("factorial.tree", "r");
-    if(!fileOpened(tree_file)) return 1;
-
-    size_t size = getFileSize(tree_file);
-
-    char* tree_data = new char[size + 1]();
-    fread(tree_data, sizeof(char), size, tree_file);
-    fclose(tree_file);
+    char* tree_data = readFile("factorial.tree");
+    if(!tree_data) return 1;
 
     TokenHandler handler = TokenHandler(tree_data);
     Tree ast = Tree(handler);

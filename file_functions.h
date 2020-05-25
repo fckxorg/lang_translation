@@ -15,3 +15,15 @@ bool fileOpened(FILE* file) {
     }
     return file;
 }
+
+char* readFile(char* filename) {
+    FILE* file = fopen(filename, "r");
+    if(!fileOpened(file)) return nullptr;
+
+    size_t size = getFileSize(file);
+
+    char* data = new char[size + 1]();
+    fread(data, sizeof(char), size, file);
+    fclose(file);
+    return data;
+}
