@@ -16,7 +16,7 @@ bool fileOpened(FILE* file) {
     return file;
 }
 
-char* readFile(char* filename) {
+char* readFile(const char* filename) {
     FILE* file = fopen(filename, "r");
     if(!fileOpened(file)) return nullptr;
 

@@ -6,12 +6,12 @@
 
 const char HELP_MESSAGE[] = "Usage: translator [input_filename] [output_filename]\n";
 
-int main(int argc, char* argv[]) {
+int main(int argc, const char* argv[]) {
     if(argc != 3) {
         std::cout << HELP_MESSAGE;
     }
-    char* input = argv[1];
-    char* output = argv[2];
+    const char* input = argv[1];
+    const char* output = argv[2];
 
     char* asm_filename = changeExtension(input, ASM_EXTENSION);
     char* object_filename = changeExtension(input, OBJECT_EXTENSION);

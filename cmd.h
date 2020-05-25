@@ -21,8 +21,8 @@ const int LD_COMMAND_LENGTH     = 3;
 const int OUTPUT_FLAG_LENGTH    = 4;
 
 
-char* changeExtension(char* filename, const char* extension) {
-    char* dot_position = strchr(filename, '.');
+char* changeExtension(const char* filename, const char* extension) {
+    const char* dot_position = strchr(filename, '.');
     const size_t name_length = dot_position - filename;
     char* new_filename = new char[name_length + MAX_EXTENSION_SIZE]();
     memcpy(new_filename, filename, name_length);
@@ -31,7 +31,7 @@ char* changeExtension(char* filename, const char* extension) {
     return new_filename;
 }
 
-void NASMCompile(char* filename) {
+void NASMCompile(const char* filename) {
     const size_t filename_length = strlen(filename);
     char* command = new char[NASM_COMMAND_LENGTH + filename_length]();
     memcpy(command, NASM, NASM_COMMAND_LENGTH);
@@ -41,7 +41,7 @@ void NASMCompile(char* filename) {
     delete command;
 }
 
-void LDLink(char* object_filename, char* output_filename) {
+void LDLink(const char* object_filename, const char* output_filename) {
     const size_t OBJECT_FILENAME_LENGTH = strlen(object_filename);
     const size_t OUTPUT_FILENAME_LENGTH = strlen(output_filename);
     const size_t COMMAND_LENGTH = LD_COMMAND_LENGTH + OBJECT_FILENAME_LENGTH + OUTPUT_FLAG_LENGTH + OUTPUT_FILENAME_LENGTH;
