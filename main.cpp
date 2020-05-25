@@ -1,5 +1,5 @@
 #include <cstring>
-#include "node_processors.h"
+#include "lang_proc_lib/node_processors.h"
 
 using std::vector;
 
