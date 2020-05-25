@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
     fclose(assembly);
 
     NASMCompile(asm_filename);
-    system("ld src_new.o");
+    LDLink(object_filename, output);
 
     delete[] asm_filename;
     delete[] object_filename;
